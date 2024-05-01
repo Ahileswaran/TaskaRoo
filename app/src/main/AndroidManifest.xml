@@ -25,6 +25,9 @@
 
         <!-- Declaration of MainActivity -->
         <activity android:name=".MainActivity" />
+
+        <!-- Declaration of AddTaskActivity -->
+        <activity android:name=".AddTaskActivity" />
     </application>
 
 </manifest>
