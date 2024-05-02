@@ -13,4 +13,19 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+
+
+        <!-- Light theme -->
+        <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light">
+            <item name="android:textColor">@color/black</item>
+        </style>
+
+        <!-- Dark theme -->
+        <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight">
+            <item name="android:textColor">@color/white</item>
+        </style>
+
+
+
 </resources>
