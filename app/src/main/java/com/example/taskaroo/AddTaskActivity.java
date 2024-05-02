@@ -95,9 +95,9 @@ public class AddTaskActivity extends AppCompatActivity {
         }
 
         // Show notification if needed
-       // if (/* condition to check if notification is required */) {
-       //     showNotification();
-       // }
+        // if (/* condition to check if notification is required */) {
+        //     showNotification();
+        // }
 
         // Finish the activity and go back to MainActivity
         finish();
