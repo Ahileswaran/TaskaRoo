@@ -1,15 +1,15 @@
 package com.example.taskaroo;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import kotlinx.coroutines.scheduling.Task;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -52,27 +52,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_NAME, null, contentValues);
     }
 
+    @SuppressLint("Range")
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
         if (cursor.moveToFirst()) {
             do {
-                Task task = new Task() {
-                    @Override
-                    public void run() {
-
-                    }
-                };
-             //task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
-             //   task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
-              //  task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
-              //  task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
-              //  task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
-             //   taskList.add(task);
+                Task task = new Task();
+                task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
+                task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
+                task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
+                task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
+                task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+                taskList.add(task);
+                Log.d("DatabaseHelper", "Task retrieved: " + task.getName());
             } while (cursor.moveToNext());
         }
         cursor.close();
         return taskList;
     }
+
+
 }

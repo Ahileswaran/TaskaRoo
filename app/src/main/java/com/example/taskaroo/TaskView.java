@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import kotlinx.coroutines.scheduling.Task;
+
 
 public class TaskView extends LinearLayout {
 
@@ -39,9 +39,9 @@ public class TaskView extends LinearLayout {
     }
 
     public void setTask(Task task) {
-       // textViewTaskName.setText(task.getName());
-      //  textViewDescription.setText(task.getDescription());
-      //  textViewDate.setText(task.getDate());
-      //  textViewTime.setText(task.getTime());
+       textViewTaskName.setText(task.getName());
+       textViewDescription.setText(task.getDescription());
+       textViewDate.setText(task.getDate());
+       textViewTime.setText(task.getTime());
     }
 }

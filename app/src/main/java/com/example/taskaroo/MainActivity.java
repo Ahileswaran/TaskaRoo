@@ -2,6 +2,7 @@ package com.example.taskaroo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
-
-import kotlinx.coroutines.scheduling.Task;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,10 +37,17 @@ public class MainActivity extends AppCompatActivity {
         // Display tasks in the container
         displayTasks();
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        displayTasks();  // Refresh the list each time the activity resumes
+    }
     private void displayTasks() {
         // Retrieve tasks from the database
         List<Task> tasks = databaseHelper.getAllTasks();
+
+        // Logging
+        Log.d("MainActivity", "Number of tasks retrieved: " + tasks.size());
 
         // Clear existing views from the container
         taskContainer.removeAllViews();

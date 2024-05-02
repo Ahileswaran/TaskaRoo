@@ -26,9 +26,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
-        app:layout_anchor="@id/taskContainer"
-        app:layout_anchorGravity="bottom|end"
-        tools:ignore="NotSibling" />
+        android:src="@android:drawable/ic_input_add" />
 
 </RelativeLayout>
