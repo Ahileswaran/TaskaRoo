@@ -2,26 +2,31 @@ package com.example.taskaroo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private RecyclerView taskRecyclerView;
     private TaskAdapter taskAdapter;
     private DatabaseHelper databaseHelper;
-    private List<Task> taskList; // Declare taskList
-    private AlertDialog deleteConfirmationDialog; // Declare AlertDialog variable
+    private List<Task> taskList;
+    private AlertDialog deleteConfirmationDialog;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize RecyclerView
         taskList = new ArrayList<>();
-        taskAdapter = new TaskAdapter(this); // Provide the Context object
+        taskAdapter = new TaskAdapter(this);
         taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         taskRecyclerView.setAdapter(taskAdapter);
 
@@ -59,50 +64,51 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // Remove the swiped task from the list
                 int position = viewHolder.getAdapterPosition();
                 Task removedTask = taskList.get(position);
                 taskList.remove(position);
                 taskAdapter.notifyItemRemoved(position);
-                // Show confirmation dialog for task deletion
                 showDeleteConfirmationDialog(removedTask);
             }
         };
 
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(taskRecyclerView);
+
+        // Navigation Drawer setup
+        drawerLayout = findViewById(R.id.drawerLayout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Set navigation item click listener
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
-    // Method to display tasks
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
         taskAdapter.setTasks(taskList);
     }
 
-    // Method to show delete confirmation dialog
     private void showDeleteConfirmationDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirm Delete")
                 .setMessage("Are you sure you want to delete this task?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // Delete the task
                     deleteTask(task);
                 })
                 .setNegativeButton("No", (dialog, which) -> {
-                    // Dismiss the dialog
                     dialog.dismiss();
                 });
         deleteConfirmationDialog = builder.create();
         deleteConfirmationDialog.show();
     }
 
-    // Method to delete task
     private void deleteTask(Task task) {
         // Implement task deletion logic here
-        // You need to remove the task from the database and update the UI
     }
 
-    // Override onDestroy to dismiss the dialog if it's showing
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -111,10 +117,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Override onResume to refresh the task list when the activity resumes
     @Override
-    protected void onResume() {
-        super.onResume();
-        displayTasks();  // Refresh the task list
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation item clicks here
+        return true;
     }
 }
