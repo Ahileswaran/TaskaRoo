@@ -89,7 +89,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
         taskAdapter.setTasks(taskList);
+        taskAdapter.notifyDataSetChanged();  // Ensure the adapter is aware of changes
     }
+
 
     private void showDeleteConfirmationDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -97,17 +99,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setMessage("Are you sure you want to delete this task?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     deleteTask(task);
+                    dialog.dismiss();
                 })
                 .setNegativeButton("No", (dialog, which) -> {
+                    displayTasks();  // Reload tasks from the database to undo the swipe delete
                     dialog.dismiss();
                 });
         deleteConfirmationDialog = builder.create();
         deleteConfirmationDialog.show();
     }
 
-    private void deleteTask(Task task) {
-        // Implement task deletion logic here
-    }
+
+
 
     @Override
     protected void onDestroy() {
@@ -122,4 +125,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation item clicks here
         return true;
     }
+
+    private void deleteTask(Task task) {
+        databaseHelper.deleteTask(task.getId());
+        displayTasks();  // Refresh the task list to show changes in the UI
+    }
+
 }
