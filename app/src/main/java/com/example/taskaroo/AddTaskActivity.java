@@ -21,6 +21,9 @@ public class AddTaskActivity extends AppCompatActivity {
     private Button buttonCancel;
     private Button buttonReset;
 
+    private DatabaseHelper databaseHelper;
+    private Task currentTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,17 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonSave.setOnClickListener(v -> saveTask());
         buttonCancel.setOnClickListener(v -> cancelTask());
         buttonReset.setOnClickListener(v -> resetFields());
+
+        // Initialize database helper
+        databaseHelper = new DatabaseHelper(this);
+
+        // Get the task ID from the intent
+        int taskId = getIntent().getIntExtra("task_id", -1);
+        if (taskId != -1) {
+            // Load task data
+            currentTask = databaseHelper.getTaskById(taskId);
+            fillTaskData(currentTask);
+        }
     }
 
     private void showDatePickerDialog() {
@@ -80,34 +94,32 @@ public class AddTaskActivity extends AppCompatActivity {
             return;
         }
 
-        // Save the task to local storage (SQLite) using DatabaseHelper
-        DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        long result = databaseHelper.addTask(taskName, description, date, time);
+        long result;
+        if (currentTask != null) {
+            // Update existing task
+            currentTask.setName(taskName);
+            currentTask.setDescription(description);
+            currentTask.setDate(date);
+            currentTask.setTime(time);
+            result = databaseHelper.updateTask(currentTask);
+        } else {
+            // Add new task
+            result = databaseHelper.addTask(taskName, description, date, time);
+        }
 
         if (result != -1) {
             Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
-            // Display the task in the MainActivity window
-            // You can implement this part based on your UI design
-            // You may need to pass the task details to MainActivity
-            // through Intent or use a ViewModel to share data between activities
         } else {
             Toast.makeText(this, "Failed to save task", Toast.LENGTH_SHORT).show();
         }
 
-        // Show notification if needed
-        // if (/* condition to check if notification is required */) {
-        //     showNotification();
-        // }
-
-        // Finish the activity and go back to MainActivity
         finish();
     }
 
     private void cancelTask() {
-        // Prompt user confirmation with Yes or No
-        // If Yes, go back to MainActivity
-        // If No, do nothing
-        // You can use an AlertDialog or DialogFragment for confirmation
+        // Implement cancel task functionality
+        // You can show a confirmation dialog here
+        finish();
     }
 
     private void resetFields() {
@@ -117,8 +129,12 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextTime.setText("");
     }
 
-    private void showNotification() {
-        // NotificationManager code here...
-        // You can create and show a notification using NotificationCompat
+    private void fillTaskData(Task task) {
+        if (task != null) {
+            editTextTaskName.setText(task.getName());
+            editTextDescription.setText(task.getDescription());
+            editTextDate.setText(task.getDate());
+            editTextTime.setText(task.getTime());
+        }
     }
 }

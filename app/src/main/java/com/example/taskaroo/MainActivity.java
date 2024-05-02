@@ -3,7 +3,6 @@ package com.example.taskaroo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -12,10 +11,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +45,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Initialize RecyclerView
         taskList = new ArrayList<>();
-        taskAdapter = new TaskAdapter(this);
+        taskAdapter = new TaskAdapter();
         taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         taskRecyclerView.setAdapter(taskAdapter);
 
         // Display tasks
         displayTasks();
+
+        // Set up click listener through interface
+        taskAdapter.setOnTaskClickListener(task -> {
+            Intent intent = new Intent(MainActivity.this, AddTaskActivity.class);
+            intent.putExtra("task_id", task.getId());
+            startActivity(intent);
+        });
 
         // ItemTouchHelper for swiping tasks
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -89,9 +93,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
         taskAdapter.setTasks(taskList);
-        taskAdapter.notifyDataSetChanged();  // Ensure the adapter is aware of changes
+        taskAdapter.notifyDataSetChanged();
     }
-
 
     private void showDeleteConfirmationDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -102,13 +105,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     dialog.dismiss();
                 })
                 .setNegativeButton("No", (dialog, which) -> {
-                    displayTasks();  // Reload tasks from the database to undo the swipe delete
+                    displayTasks();
                     dialog.dismiss();
                 });
         deleteConfirmationDialog = builder.create();
         deleteConfirmationDialog.show();
     }
-
 
 
 
@@ -128,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void deleteTask(Task task) {
         databaseHelper.deleteTask(task.getId());
-        displayTasks();  // Refresh the task list to show changes in the UI
+        displayTasks();
     }
-
 }

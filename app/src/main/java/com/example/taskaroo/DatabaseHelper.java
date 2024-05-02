@@ -14,12 +14,12 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TaskDB";
-    private static final String TABLE_NAME = "tasks";
-    private static final String COL_ID = "id";
-    private static final String COL_TASK_NAME = "task_name";
-    private static final String COL_DESCRIPTION = "description";
-    private static final String COL_DATE = "date";
-    private static final String COL_TIME = "time";
+    public static final String TABLE_NAME = "tasks";
+    public static final String COL_ID = "id";
+    public static final String COL_TASK_NAME = "task_name";
+    public static final String COL_DESCRIPTION = "description";
+    public static final String COL_DATE = "date";
+    public static final String COL_TIME = "time";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -42,6 +42,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
+    public long updateTask(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_TASK_NAME, task.getName());
+        values.put(COL_DESCRIPTION, task.getDescription());
+        values.put(COL_DATE, task.getDate());
+        values.put(COL_TIME, task.getTime());
+
+        // Updating row
+        return db.update(TABLE_NAME, values, COL_ID + " = ?",
+                new String[]{String.valueOf(task.getId())});
+    }
     public long addTask(String taskName, String description, String date, String time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -77,6 +90,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
         db.close();
     }
+
+
+    @SuppressLint("Range")
+    public Task getTaskById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[] {COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
+
+        Task task = null;
+        if (cursor.moveToFirst()) {
+            task = new Task();
+            task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
+            task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
+            task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
+            task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
+            task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+        }
+        cursor.close();
+        return task;
+    }
+
 
 
 }

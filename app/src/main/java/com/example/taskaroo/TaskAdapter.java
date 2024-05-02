@@ -1,7 +1,5 @@
 package com.example.taskaroo;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +13,22 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
     private List<Task> tasks;
-    private Context context;
+    private OnTaskClickListener listener;
 
-    public TaskAdapter(Context context) {
-        this.context = context;
+    public TaskAdapter() {
+    }
+
+    public interface OnTaskClickListener {
+        void onTaskClick(Task task);
     }
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
         notifyDataSetChanged();
+    }
+
+    public void setOnTaskClickListener(OnTaskClickListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
@@ -59,14 +64,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime = itemView.findViewById(R.id.textViewTime);
 
             itemView.setOnClickListener(v -> {
-                Task task = tasks.get(getAdapterPosition());
-                Intent intent = new Intent(context, AddTaskActivity.class);
-                intent.putExtra("task_id", task.getId());
-                intent.putExtra("task_name", task.getName());
-                intent.putExtra("task_description", task.getDescription());
-                intent.putExtra("task_date", task.getDate());
-                intent.putExtra("task_time", task.getTime());
-                context.startActivity(intent);
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    Task task = tasks.get(position);
+                    listener.onTaskClick(task);
+                }
             });
         }
 
