@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -133,15 +134,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation item clicks here
+        int id = item.getItemId();
+
+        if (id == R.id.nav_backup_restore) {
+            startActivity(new Intent(this, BackupRestoreActivity.class));
+        } else if (id == R.id.nav_select_theme) {
+            startActivity(new Intent(this, SelectThemeActivity.class));
+        }
+        // Add more if statements as needed
+
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void deleteTask(Task task) {
         databaseHelper.deleteTask(task.getId());
         displayTasks();
     }
-
 
     public void onNotificationButtonClick(View view) {
         // Handle notification button click

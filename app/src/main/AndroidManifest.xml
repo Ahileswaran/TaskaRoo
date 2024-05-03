@@ -28,6 +28,13 @@
 
         <!-- Declaration of AddTaskActivity -->
         <activity android:name=".AddTaskActivity" />
+
+        <!-- Declaration of DrawerActivity -->
+        <activity android:name=".DrawerActivity" />
+
+        <!-- Declaration of BackupRestoreActivity -->
+        <activity android:name=".BackupRestoreActivity" />
+
     </application>
 
 </manifest>
