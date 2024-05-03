@@ -3,6 +3,8 @@ package com.example.taskaroo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -138,5 +140,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void deleteTask(Task task) {
         databaseHelper.deleteTask(task.getId());
         displayTasks();
+    }
+
+
+    public void onNotificationButtonClick(View view) {
+        // Handle notification button click
+        // This is where you can implement logic to set a notification for the task
+        // You can use the task ID or any other identifier to determine which task's notification is being set
+    }
+
+    public void onCheckButtonClick(View view) {
+        // Handle check button click
+        // This is where you can implement logic to mark the task as completed
+        // You can use the task ID or any other identifier to determine which task is being marked as completed
+        Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
     }
 }
