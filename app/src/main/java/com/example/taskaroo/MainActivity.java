@@ -3,6 +3,7 @@ package com.example.taskaroo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -11,8 +12,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +92,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        displayTasks();  // Refresh the list each time the activity resumes
+    }
+
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
@@ -111,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         deleteConfirmationDialog = builder.create();
         deleteConfirmationDialog.show();
     }
-
-
 
     @Override
     protected void onDestroy() {
