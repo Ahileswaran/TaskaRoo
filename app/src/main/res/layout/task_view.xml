@@ -51,20 +51,26 @@
         </LinearLayout>
 
         <!-- Notification Icon -->
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButtonNotification"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_notification"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:onClick="onNotificationClicked" />
 
         <!-- Check Icon -->
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButtonCheck"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_check"
-            android:layout_marginStart="8dp" />
+            android:clickable="true"
+            android:onClick="onCheckClicked" />
 
     </LinearLayout>
 
