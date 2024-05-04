@@ -14,8 +14,6 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TaskDB";
-    private static final String COL_SOUND_ENABLED = "sound_enabled";
-    private static final String COL_VIBRATION_ENABLED = "vibration_enabled";
 
     public static String getCustomDatabaseName() {
         return DATABASE_NAME;
@@ -42,9 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TASK_NAME + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
-                COL_TIME + " TEXT, " +
-                COL_SOUND_ENABLED + " INTEGER DEFAULT 1, " +
-                COL_VIBRATION_ENABLED + " INTEGER DEFAULT 1)";
+                COL_TIME + " TEXT)";
         db.execSQL(createTable);
     }
 
@@ -105,6 +101,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
+
+
+
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -123,35 +122,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
-    // Methods for managing notification settings
 
-    public boolean isNotificationSoundEnabled(int taskId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID}, COL_ID + "=? AND " + COL_SOUND_ENABLED + "=?", new String[]{String.valueOf(taskId), "1"}, null, null, null, null);
-        boolean isSoundEnabled = cursor.getCount() > 0;
-        cursor.close();
-        return isSoundEnabled;
-    }
 
-    public boolean isNotificationVibrationEnabled(int taskId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID}, COL_ID + "=? AND " + COL_VIBRATION_ENABLED + "=?", new String[]{String.valueOf(taskId), "1"}, null, null, null, null);
-        boolean isVibrationEnabled = cursor.getCount() > 0;
-        cursor.close();
-        return isVibrationEnabled;
-    }
-
-    public void updateNotificationSoundEnabled(int taskId, boolean isEnabled) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_SOUND_ENABLED, isEnabled ? 1 : 0);
-        db.update(TABLE_NAME, values, COL_ID + "=?", new String[]{String.valueOf(taskId)});
-    }
-
-    public void updateNotificationVibrationEnabled(int taskId, boolean isEnabled) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_VIBRATION_ENABLED, isEnabled ? 1 : 0);
-        db.update(TABLE_NAME, values, COL_ID + "=?", new String[]{String.valueOf(taskId)});
-    }
 }

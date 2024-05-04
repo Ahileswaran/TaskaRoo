@@ -187,40 +187,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         displayTasks();
     }
 
-
-    public void onNotificationClicked(View view) {
-        // Get the task ID from the clicked view
-        int taskId = (int) view.getTag();
-
-        // Check if notification sound and vibration are currently enabled for this task
-        boolean isSoundEnabled = databaseHelper.isNotificationSoundEnabled(taskId);
-        boolean isVibrationEnabled = databaseHelper.isNotificationVibrationEnabled(taskId);
-
-        // Update notification settings
-        boolean newSoundStatus = !isSoundEnabled;
-        boolean newVibrationStatus = !isVibrationEnabled;
-        databaseHelper.updateNotificationSoundEnabled(taskId, newSoundStatus);
-        databaseHelper.updateNotificationVibrationEnabled(taskId, newVibrationStatus);
-
-        // Show appropriate toast message
-        if (!isSoundEnabled) {
-            // If sound was enabled, disable it
-            Toast.makeText(this, "Notification sound muted", Toast.LENGTH_SHORT).show();
-        } else {
-            // If sound was disabled, enable it
-            Toast.makeText(this, "Notification sound unmuted", Toast.LENGTH_SHORT).show();
-        }
-
-        if (!isVibrationEnabled) {
-            // If vibration was enabled, disable it
-            Toast.makeText(this, "Notification vibration muted", Toast.LENGTH_SHORT).show();
-        } else {
-            // If vibration was disabled, enable it
-            Toast.makeText(this, "Notification vibration unmuted", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     public void onCheckButtonClick(View view) {
         Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
     }

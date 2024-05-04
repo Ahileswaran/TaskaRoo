@@ -1,6 +1,7 @@
 package com.example.taskaroo;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,12 +37,19 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @SuppressLint("MissingPermission")
     private void createNotification(Context context, String taskName, String description) {
+        // Intent to start MainActivity when notification is clicked
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         // Create notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "taskaroo_channel")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Task Reminder")
                 .setContentText("Task: " + taskName + "\nDescription: " + description)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)  // Set the intent that will fire when the user taps the notification
+                .setAutoCancel(true); // Automatically removes the notification when it is tapped
 
         // Set notification sound
         Uri notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

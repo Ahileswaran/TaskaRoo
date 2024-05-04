@@ -57,9 +57,7 @@
             android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_notification"
-            android:layout_marginStart="8dp"
-            android:clickable="true"
-            android:onClick="onNotificationClicked" />
+            android:layout_marginStart="8dp" />
 
         <!-- Check Icon -->
         <ImageView

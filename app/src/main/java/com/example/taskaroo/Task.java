@@ -8,6 +8,8 @@ public class Task {
     private String date;
     private String time;
 
+
+
     public int getId() {
         return id;
     }
@@ -47,4 +49,5 @@ public class Task {
     public void setTime(String time) {
         this.time = time;
     }
+
 }
