@@ -1,32 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/backupRestore"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:gravity="center">
 
-    <!-- Add buttons for backup and restore options -->
-    <Button
-        android:id="@+id/buttonBackupToGoogle"
-        android:layout_width="match_parent"
+    <!-- Storage Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/storageCardView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Backup to Google Drive" />
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true">
 
-    <Button
-        android:id="@+id/buttonBackupToStorage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Backup to Storage" />
+        <LinearLayout
+            android:id="@+id/storageSection"
+            android:layout_width="266dp"
+            android:layout_height="185dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/buttonRestoreFromStorage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Restore from Storage" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Storage"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/buttonRestoreFromGoogle"
-        android:layout_width="match_parent"
+            <Button
+                android:id="@+id/buttonBackupToStorage"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Backup" />
+
+            <Button
+                android:id="@+id/buttonRestoreFromStorage"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Restore" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Google Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/googleCardView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Restore from Google Drive" />
-</LinearLayout>
+        android:layout_below="@id/storageCardView"
+        android:layout_marginTop="20dp">
+
+        <LinearLayout
+            android:id="@+id/googleSection"
+            android:layout_width="265dp"
+            android:layout_height="187dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Google"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/buttonBackupToGoogle"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Backup" />
+
+            <Button
+                android:id="@+id/buttonRestoreFromGoogle"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Restore" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
