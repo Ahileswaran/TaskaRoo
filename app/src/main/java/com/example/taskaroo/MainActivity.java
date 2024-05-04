@@ -1,11 +1,8 @@
 package com.example.taskaroo;
 
-import android.Manifest;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,9 +16,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -31,10 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -114,8 +105,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Check and request notification permission
-        enableNotification();
+        // Initialize notification channel
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            CharSequence name = "Taskaroo Channel";
+            String description = "Channel for Taskaroo notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("taskaroo_channel", name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
@@ -191,30 +196,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         displayTasks();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_PERMISSION_NOTIFICATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createNotification();
-            } else {
-                showNotificationPermissionDialog();
-            }
-        }
-    }
-
-    private void enableNotification() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_CODE_PERMISSION_NOTIFICATION);
-        } else {
-            createNotification();
-        }
-    }
-
-    private void createNotification() {
-        // Implementation of creating notifications...
-    }
-
     private void showNotificationPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Notification Permission Required")
@@ -233,37 +214,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Uri uri = Uri.fromParts("package", getPackageName(), null);
         intent.setData(uri);
         startActivity(intent);
-    }
-
-    private void createNotification(Task task) {
-        Date currentDate = new Date();
-        String taskDateTimeString = task.getDate() + " " + task.getTime();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        try {
-            Date taskDateTime = dateFormat.parse(taskDateTimeString);
-            if (currentDate.equals(taskDateTime)) {
-                String notificationTitle = "Task Reminder: " + task.getName();
-                String notificationContent = "Date: " + task.getDate() + "\nTime: " + task.getTime();
-
-                // Create the intent to open the MainActivity
-                Intent intent = new Intent(this, MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                // Build the notification
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "task_channel")
-                        .setContentTitle(notificationTitle)
-                        .setContentText(notificationContent)
-                        .setSmallIcon(android.R.drawable.ic_dialog_info) // Use a traditional notification icon
-                        .setContentIntent(pendingIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                // Show the notification
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(NOTIFICATION_ID, builder.build());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     public void onCheckClicked(View view) {

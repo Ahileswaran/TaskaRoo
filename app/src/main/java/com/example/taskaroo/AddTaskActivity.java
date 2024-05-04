@@ -1,7 +1,11 @@
 package com.example.taskaroo;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,7 +13,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class AddTaskActivity extends AppCompatActivity {
 
@@ -107,6 +114,10 @@ public class AddTaskActivity extends AppCompatActivity {
             result = databaseHelper.addTask(taskName, description, date, time);
         }
 
+        if (!date.isEmpty() && !time.isEmpty()) {
+            scheduleNotification(taskName, description, date, time);
+        }
+
         if (result != -1) {
             Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
         } else {
@@ -114,6 +125,36 @@ public class AddTaskActivity extends AppCompatActivity {
         }
 
         finish();
+    }
+
+
+    private void scheduleNotification(String taskName, String description, String date, String time) {
+        try {
+            // Combine date and time strings and parse into Date object
+            String dateTimeString = date + " " + time;
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            Date dateTime = sdf.parse(dateTimeString);
+
+            // Create Calendar object and set the time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dateTime);
+
+            // Get AlarmManager service
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            // Create intent for the notification
+            Intent notificationIntent = new Intent(this, NotificationReceiver.class);
+            notificationIntent.putExtra("task_name", taskName);
+            notificationIntent.putExtra("description", description);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            // Schedule the notification
+            if (alarmManager != null) {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void cancelTask() {
