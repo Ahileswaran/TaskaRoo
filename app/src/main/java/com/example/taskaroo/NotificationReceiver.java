@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -39,6 +42,14 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setContentTitle("Task Reminder")
                 .setContentText("Task: " + taskName + "\nDescription: " + description)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        // Set notification sound
+        Uri notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        builder.setSound(notificationSound);
+
+        // Set vibration pattern
+        long[] vibrationPattern = {0, 1000, 500, 1000}; // Vibrate for 1s, wait for 0.5s, vibrate for 1s
+        builder.setVibrate(vibrationPattern);
 
         // Show notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
