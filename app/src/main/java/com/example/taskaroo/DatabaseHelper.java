@@ -14,6 +14,10 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TaskDB";
+
+    public static String getCustomDatabaseName() {
+        return DATABASE_NAME;
+    }
     public static final String TABLE_NAME = "tasks";
     public static final String COL_ID = "id";
     public static final String COL_TASK_NAME = "task_name";
@@ -90,6 +94,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
         db.close();
     }
+
+
+
+
 
 
     @SuppressLint("Range")
