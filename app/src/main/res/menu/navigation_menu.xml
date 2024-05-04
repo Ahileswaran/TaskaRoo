@@ -6,6 +6,6 @@
         android:title="Backup/Restore" />
     <item
         android:id="@+id/nav_select_theme"
-        android:title="Select Theme" />
+        android:title="Theme Dark/Normal" />
     <!-- Add more items as needed -->
 </menu>

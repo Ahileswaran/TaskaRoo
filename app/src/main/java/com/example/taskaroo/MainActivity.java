@@ -1,7 +1,15 @@
 package com.example.taskaroo;
 
+import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -10,6 +18,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -19,7 +31,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -30,6 +45,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Task> taskList;
     private AlertDialog deleteConfirmationDialog;
     private DrawerLayout drawerLayout;
+
+    // Define notification ID constant
+    private static final int NOTIFICATION_ID = 1001;
+    // Define permission request code
+    private static final int REQUEST_CODE_PERMISSION_NOTIFICATION = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Set navigation item click listener
         NavigationView navigationView = findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Check and request notification permission
+        enableNotification();
     }
 
     @Override
@@ -139,10 +162,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_backup_restore) {
             startActivity(new Intent(this, BackupRestoreActivity.class));
         } else if (id == R.id.nav_select_theme) {
-            startActivity(new Intent(this, SelectThemeActivity.class));
+            toggleTheme();
         }
-        // Add more if statements as needed
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -161,16 +182,109 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         displayTasks();
     }
 
-    public void onNotificationButtonClick(View view) {
-        // Handle notification button click
-        // This is where you can implement logic to set a notification for the task
-        // You can use the task ID or any other identifier to determine which task's notification is being set
+    public void onCheckButtonClick(View view) {
+        Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
     }
 
-    public void onCheckButtonClick(View view) {
-        // Handle check button click
-        // This is where you can implement logic to mark the task as completed
-        // You can use the task ID or any other identifier to determine which task is being marked as completed
+    private void deleteTask(int taskId) {
+        databaseHelper.deleteTask(taskId);
+        displayTasks();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSION_NOTIFICATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                createNotification();
+            } else {
+                showNotificationPermissionDialog();
+            }
+        }
+    }
+
+    private void enableNotification() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_CODE_PERMISSION_NOTIFICATION);
+        } else {
+            createNotification();
+        }
+    }
+
+    private void createNotification() {
+        // Implementation of creating notifications...
+    }
+
+    private void showNotificationPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification Permission Required")
+                .setMessage("To enable notifications, please grant the notification permission in the app settings.")
+                .setPositiveButton("Go to Settings", (dialog, which) -> {
+                    navigateToAppSettings();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+    private void navigateToAppSettings() {
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivity(intent);
+    }
+
+    private void createNotification(Task task) {
+        Date currentDate = new Date();
+        String taskDateTimeString = task.getDate() + " " + task.getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        try {
+            Date taskDateTime = dateFormat.parse(taskDateTimeString);
+            if (currentDate.equals(taskDateTime)) {
+                String notificationTitle = "Task Reminder: " + task.getName();
+                String notificationContent = "Date: " + task.getDate() + "\nTime: " + task.getTime();
+
+                // Create the intent to open the MainActivity
+                Intent intent = new Intent(this, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // Build the notification
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "task_channel")
+                        .setContentTitle(notificationTitle)
+                        .setContentText(notificationContent)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info) // Use a traditional notification icon
+                        .setContentIntent(pendingIntent)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                // Show the notification
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onCheckClicked(View view) {
+        int taskId = (int) view.getTag();
         Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
+        deleteTask(taskId);
+    }
+
+    private void toggleTheme() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                recreate();
+                break;
+            case Configuration.UI_MODE_NIGHT_NO:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                recreate();
+                break;
+            default:
+                break;
+        }
     }
 }

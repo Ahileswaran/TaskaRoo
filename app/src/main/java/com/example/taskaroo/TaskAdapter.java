@@ -3,6 +3,7 @@ package com.example.taskaroo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private TextView textViewDescription;
         private TextView textViewDate;
         private TextView textViewTime;
+        private ImageView imageViewNotification;
+        private ImageView imageViewCheck;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -62,6 +65,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewTime = itemView.findViewById(R.id.textViewTime);
+            imageViewNotification = itemView.findViewById(R.id.imageButtonNotification);
+            imageViewCheck = itemView.findViewById(R.id.imageButtonCheck);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -77,6 +82,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription.setText(task.getDescription());
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
+
+            // Set tags for the image views
+            imageViewNotification.setTag(task.getId());
+            imageViewCheck.setTag(task.getId());
         }
     }
 }

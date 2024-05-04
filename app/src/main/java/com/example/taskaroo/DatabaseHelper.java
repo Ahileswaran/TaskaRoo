@@ -20,6 +20,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     public static final String TABLE_NAME = "tasks";
     public static final String COL_ID = "id";
+
+    public static String getCustomDatabaseID(int taskId) {
+        return COL_ID;
+    }
     public static final String COL_TASK_NAME = "task_name";
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_DATE = "date";
