@@ -9,15 +9,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 
-
-
 public class StartActivity extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        // Hide the ActionBar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         ImageView imageView = findViewById(R.id.imageView);
 
@@ -36,6 +38,4 @@ public class StartActivity extends AppCompatActivity {
             }, 5000); // Time in milliseconds for the second GIF
         }, 3000); // Time in milliseconds for the first GIF
     }
-
-
 }

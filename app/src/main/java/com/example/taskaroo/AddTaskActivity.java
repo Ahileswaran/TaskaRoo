@@ -7,10 +7,12 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.ParseException;
@@ -33,6 +35,18 @@ public class AddTaskActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+        // Inflate the custom layout for the ActionBar logo
+        View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
+
+        // Set the custom layout as the logo in the ActionBar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(actionBarLogo);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
 
