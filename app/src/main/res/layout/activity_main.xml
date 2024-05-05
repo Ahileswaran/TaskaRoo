@@ -12,15 +12,18 @@
         android:layout_height="match_parent">
 
         <!-- Container for displaying tasks -->
+
+        <!-- Floating action button for adding tasks -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/taskRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/fab_add_task"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp"
             tools:listitem="@layout/task_view" />
 
-        <!-- Floating action button for adding tasks -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_task"
             android:layout_width="wrap_content"
