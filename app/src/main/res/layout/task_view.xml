@@ -66,9 +66,7 @@
             android:layout_height="30dp"
             android:layout_marginStart="8dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_check"
-            android:clickable="true"
-            android:onClick="onCheckClicked" />
+            android:src="@drawable/ic_check" />
 
     </LinearLayout>
 
