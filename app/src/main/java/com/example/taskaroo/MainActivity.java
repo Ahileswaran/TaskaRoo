@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
         // Inflate the custom layout for the ActionBar logo
         View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
 

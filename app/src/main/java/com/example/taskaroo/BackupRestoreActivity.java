@@ -29,10 +29,9 @@ public class BackupRestoreActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_BACKUP_FILE = 3;
     private static final int REQUEST_CODE_RESTORE_FILE = 4;
 
-    private Button buttonBackupToGoogle;
+
     private Button buttonBackupToStorage;
     private Button buttonRestoreFromStorage;
-    private Button buttonRestoreFromGoogle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +49,12 @@ public class BackupRestoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.backup_activity);
 
-        buttonBackupToGoogle = findViewById(R.id.buttonBackupToGoogle);
+
         buttonBackupToStorage = findViewById(R.id.buttonBackupToStorage);
         buttonRestoreFromStorage = findViewById(R.id.buttonRestoreFromStorage);
-        buttonRestoreFromGoogle = findViewById(R.id.buttonRestoreFromGoogle);
 
-        buttonBackupToGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkAndRequestStoragePermission(REQUEST_CODE_BACKUP_RESTORE);
-            }
-        });
+
+
 
         buttonBackupToStorage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,12 +70,7 @@ public class BackupRestoreActivity extends AppCompatActivity {
             }
         });
 
-        buttonRestoreFromGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                restoreFromGoogleDrive();
-            }
-        });
+
     }
 
     private void checkAndRequestStoragePermission(int requestCode) {
@@ -94,7 +83,6 @@ public class BackupRestoreActivity extends AppCompatActivity {
                     requestCode);
         } else {
             if (requestCode == REQUEST_CODE_BACKUP_RESTORE) {
-                backupToGoogleDrive();
             } else if (requestCode == REQUEST_CODE_RESTORE_FILE) {
                 restoreFromStorage();
             }
@@ -106,19 +94,13 @@ public class BackupRestoreActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_STORAGE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                backupToGoogleDrive();
             } else {
                 Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void backupToGoogleDrive() {
-        // Implement backup to Google Drive using Google Drive API
-        // This might involve authentication and file handling
-        // For demonstration purposes, we'll show a toast message
-        Toast.makeText(this, "Backup to Google Drive initiated", Toast.LENGTH_SHORT).show();
-    }
+
 
     private void backupToStorage() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -135,12 +117,7 @@ public class BackupRestoreActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_RESTORE_FILE);
     }
 
-    private void restoreFromGoogleDrive() {
-        // Implement restore from Google Drive using Google Drive API
-        // This might involve authentication and file handling
-        // For demonstration purposes, we'll show a toast message
-        Toast.makeText(this, "Restore from Google Drive initiated", Toast.LENGTH_SHORT).show();
-    }
+
 
     private void performBackup(Uri backupUri) {
         try {
