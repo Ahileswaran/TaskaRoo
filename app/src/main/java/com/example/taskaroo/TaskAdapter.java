@@ -61,7 +61,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private TextView textViewDescription;
         private TextView textViewDate;
         private TextView textViewTime;
-        private ImageView imageButtonCheck; // Assuming you have an ImageView for the check icon
+        private ImageView imageButtonOverdue; //  ImageView for the Overdue icon
+        private ImageView imageButtonPending; //  ImageView for the pending icon
+        private ImageView imageButtonCheck; // Check icon When the complete button clicked
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,7 +71,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewTime = itemView.findViewById(R.id.textViewTime);
-            imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck); // Linking the ImageView
+            imageButtonOverdue = itemView.findViewById(R.id.imageButtonCheck); // Linking the ImageView
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -87,9 +89,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             // Check if the task's date and time passed the current date and time
             if (isTaskDueNow(task)) {
-                imageButtonCheck.setVisibility(View.VISIBLE);
+                imageButtonOverdue.setVisibility(View.VISIBLE);
             } else {
-                imageButtonCheck.setVisibility(View.GONE);
+                imageButtonOverdue.setVisibility(View.GONE);
             }
         }
 

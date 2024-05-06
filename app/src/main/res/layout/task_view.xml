@@ -9,9 +9,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:padding="16dp">
+
 
         <LinearLayout
             android:layout_width="0dp"
@@ -23,20 +24,20 @@
                 android:id="@+id/textViewTaskName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold|italic"
-                android:textSize="18sp"
-                android:textColor="@color/black"
                 android:background="@drawable/title_background"
-                android:fontFamily="sans-serif-medium"/>
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold|italic" />
 
             <TextView
                 android:id="@+id/textViewDescription"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="64dp"
                 android:layout_marginTop="2dp"
-                android:textSize="16sp"
+                android:background="@drawable/description_background"
                 android:textColor="@color/black"
-                android:background="@drawable/description_background" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textViewDate"
@@ -58,6 +59,20 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/completeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Complete"
+                android:textSize="10dp" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="47dp" />
+
+
         </LinearLayout>
 
         <!-- Notification Icon -->
@@ -65,11 +80,12 @@
             android:id="@+id/imageButtonNotification"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginStart="8dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_notification"
-            android:layout_marginStart="8dp" />
+            android:src="@drawable/ic_notification" />
 
         <!-- Check Icon -->
+
         <ImageView
             android:id="@+id/imageButtonCheck"
             android:layout_width="30dp"
@@ -77,6 +93,25 @@
             android:layout_marginStart="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_check" />
+
+        <!-- Pending Icon -->
+        <ImageView
+            android:id="@+id/imageButtonPending"
+            android:layout_width="30dp"
+            android:layout_height="33dp"
+            android:layout_marginStart="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_pending" />
+
+        <!-- Overdue Icon -->
+        <ImageView
+            android:id="@+id/imageButtonOverdue"
+            android:layout_width="30dp"
+            android:layout_height="31dp"
+            android:layout_marginStart="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_overdue" />
+
 
     </LinearLayout>
 
