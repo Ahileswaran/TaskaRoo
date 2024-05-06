@@ -63,6 +63,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private TextView textViewTime;
         private ImageView imageButtonOverdue; // ImageView for the Overdue icon
         private ImageView imageButtonPending; // ImageView for the pending icon
+        private ImageView imageButtonCheck;
+        private View completeButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,11 +74,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime = itemView.findViewById(R.id.textViewTime);
             imageButtonOverdue = itemView.findViewById(R.id.imageButtonOverdue);
             imageButtonPending = itemView.findViewById(R.id.imageButtonPending);
+            imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck);
+            completeButton = itemView.findViewById(R.id.completeButton);
 
-            itemView.setOnClickListener(v -> {
+            completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (listener != null && position != RecyclerView.NO_POSITION) {
+                    // Call the onTaskClick method of the listener
                     listener.onTaskClick(tasks.get(position));
+
+                    // Hide other images and show check image
+                    imageButtonOverdue.setVisibility(View.GONE);
+                    imageButtonPending.setVisibility(View.GONE);
+                    imageButtonCheck.setVisibility(View.VISIBLE);
                 }
             });
         }

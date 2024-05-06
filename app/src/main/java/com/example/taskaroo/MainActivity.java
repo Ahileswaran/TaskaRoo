@@ -26,8 +26,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -144,6 +150,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
+        // Sort tasks based on due date
+        Collections.sort(taskList, new Comparator<Task>() {
+            @Override
+            public int compare(Task task1, Task task2) {
+                // Parse due dates of tasks
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                try {
+                    Date dueDate1 = sdf.parse(task1.getDate());
+                    Date dueDate2 = sdf.parse(task2.getDate());
+                    // Compare due dates
+                    return dueDate1.compareTo(dueDate2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+        });
+
         taskAdapter.setTasks(taskList);
         taskAdapter.notifyDataSetChanged();
     }
