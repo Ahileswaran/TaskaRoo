@@ -85,13 +85,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (listener != null && position != RecyclerView.NO_POSITION) {
-                    // Call the onTaskClick method of the listener
-                    listener.onTaskClick(tasks.get(position));
+                    Task task = tasks.get(position);
+                    listener.onTaskClick(task);
 
-                    // Hide other images and show check image
-                    imageButtonOverdue.setVisibility(View.GONE);
-                    imageButtonPending.setVisibility(View.GONE);
-                    imageButtonCheck.setVisibility(View.VISIBLE);
+                    // Update completion status in the database
+                    task.setCompleted(true); // Assuming you have a boolean field in Task class to track completion status
+                    DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext());
+                    dbHelper.updateTaskCompletionStatus(task.getId(), true); // Update completion status for this task
+
+                    // Refresh RecyclerView
+                    notifyItemChanged(position);
                 }
             });
         }
@@ -121,6 +124,27 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
                 // Set progress
                 progressBar.setProgress(progress);
+
+                // Update icon visibility based on completion status
+                if (task.isCompleted()) {
+                    imageButtonOverdue.setVisibility(View.GONE);
+                    imageButtonPending.setVisibility(View.GONE);
+                    imageButtonCheck.setVisibility(View.VISIBLE);
+                } else {
+                    // Here you can handle the visibility of other icons based on different conditions
+                    // For example, if the task is overdue, show overdue icon, if it's pending, show pending icon, etc.
+                    if (diffInMilliseconds < 0) {
+                        // Task is overdue
+                        imageButtonOverdue.setVisibility(View.VISIBLE);
+                        imageButtonPending.setVisibility(View.GONE);
+                        imageButtonCheck.setVisibility(View.GONE);
+                    } else {
+                        // Task is not overdue
+                        imageButtonOverdue.setVisibility(View.GONE);
+                        imageButtonPending.setVisibility(View.VISIBLE);
+                        imageButtonCheck.setVisibility(View.GONE);
+                    }
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }

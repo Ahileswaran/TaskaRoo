@@ -29,6 +29,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_DATE = "date";
     public static final String COL_TIME = "time";
 
+    public static final String COL_COMPLETED = "completed";
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
@@ -40,7 +43,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TASK_NAME + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
-                COL_TIME + " TEXT)";
+                COL_TIME + " TEXT, "+
+                COL_COMPLETED + " INTEGER DEFAULT 0)";
         db.execSQL(createTable);
     }
 
@@ -101,9 +105,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-
-
-
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -122,6 +123,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
+    public long updateTaskCompletionStatus(int taskId, boolean completed) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_COMPLETED, completed ? 1 : 0); // 1 for completed, 0 for not completed
+        // Updating row
+        return db.update(TABLE_NAME, values, COL_ID + " = ?",
+                new String[]{String.valueOf(taskId)});
+    }
 
 
 }
