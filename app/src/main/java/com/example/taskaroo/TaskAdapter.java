@@ -1,9 +1,12 @@
 package com.example.taskaroo;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -65,6 +68,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private ImageView imageButtonPending; // ImageView for the pending icon
         private ImageView imageButtonCheck;
         private View completeButton;
+        private ProgressBar progressBar; // Progress bar for task progress
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,6 +80,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageButtonPending = itemView.findViewById(R.id.imageButtonPending);
             imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck);
             completeButton = itemView.findViewById(R.id.completeButton);
+            progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
 
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -105,25 +110,53 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
 
-                // Convert the due date to Calendar for comparison
-                Calendar taskDue = Calendar.getInstance();
-                taskDue.setTime(dueDate);
+                // Calculate the difference between current date and task due date
+                long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
 
-                // Check if the task is overdue
-                if (now.after(taskDue)) {
-                    imageButtonOverdue.setVisibility(View.VISIBLE);
-                    imageButtonPending.setVisibility(View.GONE);
-                } else if (now.before(taskDue)) {
-                    // Display pending icon if current date and time are before the task's due date and time
-                    imageButtonOverdue.setVisibility(View.GONE);
-                    imageButtonPending.setVisibility(View.VISIBLE);
-                } else {
-                    // Hide both icons if task is neither overdue nor pending
-                    imageButtonOverdue.setVisibility(View.GONE);
-                    imageButtonPending.setVisibility(View.GONE);
-                }
+                // Calculate progress
+                int progress = calculateProgress(diffInMilliseconds);
+
+                // Set progress bar color based on progress
+                setProgressBarColor(progress);
+
+                // Set progress
+                progressBar.setProgress(progress);
             } catch (ParseException e) {
                 e.printStackTrace();
+            }
+        }
+
+        private int calculateProgress(long diffInMilliseconds) {
+            // Define thresholds for progress levels (in milliseconds)
+            long highThreshold = 24 * 60 * 60 * 1000; // 1 day
+            long mediumThreshold = 3 * 24 * 60 * 60 * 1000; // 3 days
+
+            // Calculate progress based on the difference
+            if (diffInMilliseconds < 0) {
+                // Task is overdue
+                return 100;
+            } else if (diffInMilliseconds < highThreshold) {
+                // Task due date is near
+                return 75;
+            } else if (diffInMilliseconds < mediumThreshold) {
+                // Task due date is medium
+                return 50;
+            } else {
+                // Task due date is far
+                return 25;
+            }
+        }
+
+        private void setProgressBarColor(int progress) {
+            if (progress >= 75) {
+                // Red color for high priority
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
+            } else if (progress >= 50) {
+                // Yellow color for medium priority
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
+            } else {
+                // Green color for low priority
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
             }
         }
     }
