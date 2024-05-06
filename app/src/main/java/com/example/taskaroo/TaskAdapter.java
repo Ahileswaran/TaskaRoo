@@ -61,9 +61,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private TextView textViewDescription;
         private TextView textViewDate;
         private TextView textViewTime;
-        private ImageView imageButtonOverdue; //  ImageView for the Overdue icon
-        private ImageView imageButtonPending; //  ImageView for the pending icon
-        private ImageView imageButtonCheck; // Check icon When the complete button clicked
+        private ImageView imageButtonOverdue; // ImageView for the Overdue icon
+        private ImageView imageButtonPending; // ImageView for the pending icon
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,7 +70,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewTime = itemView.findViewById(R.id.textViewTime);
-            imageButtonOverdue = itemView.findViewById(R.id.imageButtonCheck); // Linking the ImageView
+            imageButtonOverdue = itemView.findViewById(R.id.imageButtonOverdue);
+            imageButtonPending = itemView.findViewById(R.id.imageButtonPending);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -87,42 +87,34 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
 
-            // Check if the task's date and time passed the current date and time
-            if (isTaskDueNow(task)) {
-                imageButtonOverdue.setVisibility(View.VISIBLE);
-            } else {
-                imageButtonOverdue.setVisibility(View.GONE);
-            }
-        }
-
-        private boolean isTaskDueNow(Task task) {
             // Get the current date and time
             Calendar now = Calendar.getInstance();
 
             try {
-                // Parse the task's due date and time into the format "yyyy-MM-dd HH:mm"
-                SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                Date dueDate = sdfInput.parse(task.getDate() + " " + task.getTime());
+                // Parse the task's due date and time into a Date object
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
 
-                // Create a new SimpleDateFormat object to ensure consistent formatting
-                SimpleDateFormat sdfComparison = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-                String formattedTaskDateTime = sdfComparison.format(dueDate);
-
-                // Parse the formatted date and time string back into a Date object
-                dueDate = sdfComparison.parse(formattedTaskDateTime);
-
-                // Convert the parsed Date objects to Calendar objects
+                // Convert the due date to Calendar for comparison
                 Calendar taskDue = Calendar.getInstance();
                 taskDue.setTime(dueDate);
 
-                // Check if the task's due date and time have passed the current date and time
-                return now.after(taskDue);
+                // Check if the task is overdue
+                if (now.after(taskDue)) {
+                    imageButtonOverdue.setVisibility(View.VISIBLE);
+                    imageButtonPending.setVisibility(View.GONE);
+                } else if (now.before(taskDue)) {
+                    // Display pending icon if current date and time are before the task's due date and time
+                    imageButtonOverdue.setVisibility(View.GONE);
+                    imageButtonPending.setVisibility(View.VISIBLE);
+                } else {
+                    // Hide both icons if task is neither overdue nor pending
+                    imageButtonOverdue.setVisibility(View.GONE);
+                    imageButtonPending.setVisibility(View.GONE);
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            return false;
         }
-
-
     }
 }
