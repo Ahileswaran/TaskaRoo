@@ -26,6 +26,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText editTextDescription;
     private EditText editTextDate;
     private EditText editTextTime;
+    private EditText editTextReminder;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
@@ -33,9 +34,12 @@ public class AddTaskActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private Task currentTask;
 
+    private static final int MIN_REMINDER = 1;
+    private static final int MAX_REMINDER = 20;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        super.onCreate(savedInstanceState);
 
         // Inflate the custom layout for the ActionBar logo
         View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
@@ -47,13 +51,13 @@ public class AddTaskActivity extends AppCompatActivity {
             actionBar.setCustomView(actionBarLogo);
         }
 
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
 
         editTextTaskName = findViewById(R.id.editTextTaskName);
         editTextDescription = findViewById(R.id.editTextDescription);
         editTextDate = findViewById(R.id.editTextDate);
         editTextTime = findViewById(R.id.editTextTime);
+        editTextReminder = findViewById(R.id.editTextReminder);
         buttonSave = findViewById(R.id.buttonSaveTask);
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonReset = findViewById(R.id.buttonReset);
@@ -115,6 +119,12 @@ public class AddTaskActivity extends AppCompatActivity {
             return;
         }
 
+        int reminderInterval = getReminderInterval();
+        if (reminderInterval == -1) {
+            return; // Invalid input, return without saving
+        }
+        // Save the reminder interval along with other task details
+
         long result;
         if (currentTask != null) {
             // Update existing task
@@ -138,6 +148,29 @@ public class AddTaskActivity extends AppCompatActivity {
         finish();
     }
 
+    private int getReminderInterval() {
+        String reminderText = editTextReminder.getText().toString().trim();
+        if (reminderText.isEmpty()) {
+            // Assume the default reminder interval as 1
+            return 1;
+        }
+
+        int reminderInterval;
+        try {
+            reminderInterval = Integer.parseInt(reminderText);
+            if (reminderInterval < MIN_REMINDER || reminderInterval > MAX_REMINDER) {
+                // Reminder interval out of range, show toast message and return -1
+                Toast.makeText(this, "Reminder interval must be between 1 and 20", Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+        } catch (NumberFormatException e) {
+            // Invalid input, show toast message and return -1
+            Toast.makeText(this, "Invalid reminder interval", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+
+        return reminderInterval;
+    }
 
     private void scheduleNotification(String taskName, String description, String date, String time) {
         try {
@@ -179,6 +212,7 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextDescription.setText("");
         editTextDate.setText("");
         editTextTime.setText("");
+        editTextReminder.setText("");
     }
 
     private void fillTaskData(Task task) {
@@ -189,5 +223,4 @@ public class AddTaskActivity extends AppCompatActivity {
             editTextTime.setText(task.getTime());
         }
     }
-
 }
