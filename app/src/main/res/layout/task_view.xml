@@ -59,13 +59,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/completeButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Complete"
-                android:textSize="10dp" />
-
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -95,6 +88,7 @@
             android:src="@drawable/ic_check" />
 
         <!-- Pending Icon -->
+
         <ImageView
             android:id="@+id/imageButtonPending"
             android:layout_width="30dp"
@@ -112,7 +106,22 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_overdue" />
 
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="180dp"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/completeButton"
+            android:layout_width="62dp"
+            android:layout_height="37dp"
+            android:text="Done"
+            android:textSize="10dp" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

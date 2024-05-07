@@ -101,26 +101,42 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription.setText(task.getDescription());
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
-
             // Get the current date and time
             Calendar now = Calendar.getInstance();
-
             try {
                 // Parse the task's due date and time into a Date object
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-
                 // Calculate the difference between current date and task due date
                 long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
-
                 // Calculate progress
                 int progress = calculateProgress(diffInMilliseconds);
-
                 // Set progress bar color based on progress
                 setProgressBarColor(progress);
 
                 // Set progress
                 progressBar.setProgress(progress);
+
+                // Update icon visibility based on completion status
+                if (task.isCompleted()) {
+                    imageButtonOverdue.setVisibility(View.GONE);
+                    imageButtonPending.setVisibility(View.GONE);
+                    imageButtonCheck.setVisibility(View.VISIBLE);
+                } else {
+                    // Here you can handle the visibility of other icons based on different conditions
+                    // For example, if the task is overdue, show overdue icon, if it's pending, show pending icon, etc.
+                    if (diffInMilliseconds < 0) {
+                        // Task is overdue
+                        imageButtonOverdue.setVisibility(View.VISIBLE);
+                        imageButtonPending.setVisibility(View.GONE);
+                        imageButtonCheck.setVisibility(View.GONE);
+                    } else {
+                        // Task is not overdue
+                        imageButtonOverdue.setVisibility(View.GONE);
+                        imageButtonPending.setVisibility(View.VISIBLE);
+                        imageButtonCheck.setVisibility(View.GONE);
+                    }
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
