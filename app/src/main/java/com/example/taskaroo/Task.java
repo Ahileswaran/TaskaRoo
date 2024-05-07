@@ -7,7 +7,7 @@ public class Task {
     private String description;
     private String date;
     private String time;
-    private boolean completed;
+
 
 
     public int getId() {
@@ -50,11 +50,4 @@ public class Task {
         this.time = time;
     }
 
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
 }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,48 +19,37 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
-
     private List<Task> tasks;
     private OnTaskClickListener listener;
-
     public TaskAdapter() {
     }
-
     public interface OnTaskClickListener {
         void onTaskClick(Task task);
     }
-
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
         notifyDataSetChanged();
     }
-
     public void setOnTaskClickListener(OnTaskClickListener listener) {
         this.listener = listener;
     }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_view, parent, false);
         return new ViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Task task = tasks.get(position);
         holder.bind(task);
     }
-
     @Override
     public int getItemCount() {
         return tasks != null ? tasks.size() : 0;
     }
-
     class ViewHolder extends RecyclerView.ViewHolder {
-
         private TextView textViewTaskName;
         private TextView textViewDescription;
         private TextView textViewDate;
@@ -69,7 +59,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private ImageView imageButtonCheck;
         private View completeButton;
         private ProgressBar progressBar; // Progress bar for task progress
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTaskName = itemView.findViewById(R.id.textViewTaskName);
@@ -84,18 +73,39 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (listener != null && position != RecyclerView.NO_POSITION) {
-                    // Call the onTaskClick method of the listener
-                    listener.onTaskClick(tasks.get(position));
-
+                if (position != RecyclerView.NO_POSITION) {
+                    Task task = tasks.get(position);
                     // Hide other images and show check image
                     imageButtonOverdue.setVisibility(View.GONE);
                     imageButtonPending.setVisibility(View.GONE);
                     imageButtonCheck.setVisibility(View.VISIBLE);
+
+                    // Update completion status in the Task object
+                    task.setCompleted(true);
+
+                    // Update completion status in the database
+                    DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext());
+                    int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
+
+                    // Refresh RecyclerView if the completion status is successfully updated
+                    // Handle the case where completion status update failed
+                    // For example, show an error message
+                    if (isUpdated == 0) {
+                        Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
+                    } else {
+                        notifyItemChanged(position);
+                        // Retrieve complete message with task ID from the database
+                        String completeMessage = dbHelper.getCompleteMessage(task.getId());
+                        // Check if the complete message is not null before displaying it
+                        if (completeMessage != null) {
+                            // Do whatever you want with the complete message, such as showing a toast
+                            Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
             });
-        }
 
+        }
         public void bind(Task task) {
             textViewTaskName.setText(task.getName());
             textViewDescription.setText(task.getDescription());
@@ -141,12 +151,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 e.printStackTrace();
             }
         }
-
         private int calculateProgress(long diffInMilliseconds) {
             // Define thresholds for progress levels (in milliseconds)
             long highThreshold = 24 * 60 * 60 * 1000; // 1 day
             long mediumThreshold = 3 * 24 * 60 * 60 * 1000; // 3 days
-
             // Calculate progress based on the difference
             if (diffInMilliseconds < 0) {
                 // Task is overdue
@@ -162,7 +170,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 return 25;
             }
         }
-
         private void setProgressBarColor(int progress) {
             if (progress >= 75) {
                 // Red color for high priority
