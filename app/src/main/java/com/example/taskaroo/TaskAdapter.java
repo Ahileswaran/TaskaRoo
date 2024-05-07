@@ -105,6 +105,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 }
             });
 
+
         }
         public void bind(Task task) {
             textViewTaskName.setText(task.getName());

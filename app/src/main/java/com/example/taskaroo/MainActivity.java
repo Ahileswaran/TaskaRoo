@@ -150,6 +150,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
+
+        // Iterate through each task and retrieve completion status from the database
+        for (Task task : taskList) {
+            // Retrieve completion status from the database based on task ID
+            Task dbTask = databaseHelper.getTaskById(task.getId());
+            if (dbTask != null) {
+                // Update completion status in the task object
+                task.setCompleted(dbTask.isCompleted());
+            }
+        }
+
         // Sort tasks based on due date
         Collections.sort(taskList, new Comparator<Task>() {
             @Override
