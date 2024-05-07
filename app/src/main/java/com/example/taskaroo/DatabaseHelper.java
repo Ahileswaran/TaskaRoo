@@ -44,7 +44,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
                 COL_TIME + " TEXT, " +
-                COL_TIME + " TEXT, "+
                 COL_COMPLETED + " INTEGER DEFAULT 0)";
         db.execSQL(createTable);
     }

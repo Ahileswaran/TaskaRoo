@@ -1,15 +1,19 @@
 package com.example.taskaroo;
 
-
 public class Task {
     private int id;
     private String name;
     private String description;
     private String date;
     private String time;
+    private boolean completed;
 
+    // Constructor
+    public Task() {
+        // Default constructor
+    }
 
-
+    // Getters and setters
     public int getId() {
         return id;
     }
@@ -50,4 +54,11 @@ public class Task {
         this.time = time;
     }
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }
