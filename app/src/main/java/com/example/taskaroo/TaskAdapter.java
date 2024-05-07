@@ -19,37 +19,46 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     private List<Task> tasks;
     private OnTaskClickListener listener;
+
     public TaskAdapter() {
     }
+
     public interface OnTaskClickListener {
         void onTaskClick(Task task);
     }
+
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
         notifyDataSetChanged();
     }
+
     public void setOnTaskClickListener(OnTaskClickListener listener) {
         this.listener = listener;
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_view, parent, false);
         return new ViewHolder(view);
     }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Task task = tasks.get(position);
         holder.bind(task);
     }
+
     @Override
     public int getItemCount() {
         return tasks != null ? tasks.size() : 0;
     }
-    class ViewHolder extends RecyclerView.ViewHolder {
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewTaskName;
         private TextView textViewDescription;
         private TextView textViewDate;
@@ -59,6 +68,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private ImageView imageButtonCheck;
         private View completeButton;
         private ProgressBar progressBar; // Progress bar for task progress
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTaskName = itemView.findViewById(R.id.textViewTaskName);
@@ -74,16 +84,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    Task task = tasks.get(position);
-                    // Hide other images and show check image
-                    imageButtonOverdue.setVisibility(View.GONE);
-                    imageButtonPending.setVisibility(View.GONE);
-                    imageButtonCheck.setVisibility(View.VISIBLE);
+                    Task task = tasks.get(position); // Assign the task at the current position
 
                     // Update completion status in the Task object
                     task.setCompleted(true);
+                    task.setTimestamp(getDateTime()); // Use getDateTime() method
 
-                    // Update completion status in the database
+                    // Update completion status and timestamp in the database
                     DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext());
                     int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
 
@@ -104,9 +111,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     }
                 }
             });
-
-
         }
+
         public void bind(Task task) {
             textViewTaskName.setText(task.getName());
             textViewDescription.setText(task.getDescription());
@@ -152,6 +158,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 e.printStackTrace();
             }
         }
+
         private int calculateProgress(long diffInMilliseconds) {
             // Define thresholds for progress levels (in milliseconds)
             long highThreshold = 24 * 60 * 60 * 1000; // 1 day
@@ -171,6 +178,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 return 25;
             }
         }
+
         private void setProgressBarColor(int progress) {
             if (progress >= 75) {
                 // Red color for high priority
@@ -183,5 +191,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
             }
         }
+    }
+
+    // Helper method to get current date and time
+    private String getDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date());
     }
 }

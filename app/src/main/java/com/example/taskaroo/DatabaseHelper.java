@@ -32,6 +32,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String COL_COMPLETED = "completed";
 
+    private static final String COL_TIMESTAMP = "timestamp";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -43,8 +45,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TASK_NAME + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
-                COL_TIME + " TEXT, " +
-                COL_COMPLETED + " INTEGER DEFAULT 0)";
+                COL_TIME + " TEXT, "
+                + COL_COMPLETED + " INTEGER,"
+                + COL_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" // Default timestamp
+                + ")";
         db.execSQL(createTable);
     }
 
@@ -117,14 +121,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
+    // Method to update task completion status and timestamp
     public int updateTaskCompletionStatus(int taskId, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_COMPLETED, completed ? 1 : 0); // 1 for completed, 0 for not completed
-        // Updating row
-        return db.update(TABLE_NAME, values, COL_ID + " = ?",
-                new String[]{String.valueOf(taskId)});
+        values.put(COL_COMPLETED, completed ? 1 : 0);
+        // Update timestamp only if the task is completed
+        if (completed) {
+            values.put(COL_TIMESTAMP, getDateTime());
+        }
+        int rowsAffected = db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+        return rowsAffected;
     }
+
+    // Helper method to get current date and time
+    private String getDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+
 
 
 

@@ -8,6 +8,15 @@ public class Task {
     private String time;
     private boolean completed;
 
+    private String timestamp; // Add timestamp field
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
     // Constructor
     public Task() {
         // Default constructor
