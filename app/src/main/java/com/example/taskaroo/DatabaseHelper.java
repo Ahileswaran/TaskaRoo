@@ -57,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
+    //Update Task
     public long updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -71,6 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(task.getId())});
     }
 
+    //Add Task
     public long addTask(String taskName, String description, String date, String time, int completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -104,6 +106,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
+    //Get Task
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -142,6 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sdf.format(new Date());
     }
 
+    //Display Complete Message for completed Task
     public String getCompleteMessage(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +
