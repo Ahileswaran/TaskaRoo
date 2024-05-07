@@ -64,19 +64,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_DESCRIPTION, task.getDescription());
         values.put(COL_DATE, task.getDate());
         values.put(COL_TIME, task.getTime());
+        values.put(COL_COMPLETED, task.isCompleted() ? 1 : 0);
+        values.put(COL_TIMESTAMP, getDateTime());
         // Updating row
         return db.update(TABLE_NAME, values, COL_ID + " = ?",
                 new String[]{String.valueOf(task.getId())});
     }
-    public long addTask(String taskName, String description, String date, String time) {
+
+    public long addTask(String taskName, String description, String date, String time, int completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_TASK_NAME, taskName);
         contentValues.put(COL_DESCRIPTION, description);
         contentValues.put(COL_DATE, date);
         contentValues.put(COL_TIME, time);
+        contentValues.put(COL_COMPLETED, completed);
         return db.insert(TABLE_NAME, null, contentValues);
     }
+
     @SuppressLint("Range")
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -90,6 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
                 task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
                 task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+                task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
                 taskList.add(task);
                 Log.d("DatabaseHelper", "Task retrieved: " + task.getName());
             } while (cursor.moveToNext());
@@ -97,17 +103,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return taskList;
     }
-    public void deleteTask(int taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
-        db.close();
-    }
-
 
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[] {COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, new String[] {COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_COMPLETED}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
         Task task = null;
         if (cursor.moveToFirst()) {
             task = new Task();
@@ -116,6 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
             task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
             task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+            task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
         }
         cursor.close();
         return task;
@@ -141,9 +142,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sdf.format(new Date());
     }
 
-
-
-
     public String getCompleteMessage(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +
@@ -151,30 +149,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)});
 
         if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") boolean completed = cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1;
-            @SuppressLint("Range") String dueDate = cursor.getString(cursor.getColumnIndex(COL_DATE));
-            @SuppressLint("Range") String dueTime = cursor.getString(cursor.getColumnIndex(COL_TIME));
+            int dateIndex = cursor.getColumnIndex(COL_DATE);
+            int timeIndex = cursor.getColumnIndex(COL_TIME);
+            int completedIndex = cursor.getColumnIndex(COL_COMPLETED);
 
-            // Parse the date and time to check if it is completed before the due date
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-            try {
-                Date dueDateTime = sdf.parse(dueDate + " " + dueTime);
-                Date now = new Date();
+            if (dateIndex != -1 && timeIndex != -1 && completedIndex != -1) {
+                boolean completed = cursor.getInt(completedIndex) == 1;
+                String dueDate = cursor.getString(dateIndex);
+                String dueTime = cursor.getString(timeIndex);
 
-                if (completed) {
-                    if (now.before(dueDateTime)) {
-                        cursor.close();
-                        return "Task completed on time!";
+                // Parse the date and time to check if it is completed before the due date
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                try {
+                    Date dueDateTime = sdf.parse(dueDate + " " + dueTime);
+                    Date now = new Date();
+
+                    if (completed) {
+                        if (now.before(dueDateTime)) {
+                            cursor.close();
+                            return "Task completed on time!";
+                        } else {
+                            cursor.close();
+                            return "Task completed, but was overdue!";
+                        }
                     } else {
                         cursor.close();
-                        return "Task completed, but was overdue!";
+                        return "Task not completed yet.";
                     }
-                } else {
-                    cursor.close();
-                    return "Task not completed yet.";
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
-            } catch (ParseException e) {
-                e.printStackTrace();
             }
         }
 
@@ -184,4 +188,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return "Information unavailable.";
     }
 
+    //Delete Task
+    public void deleteTask(int taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+    }
 }

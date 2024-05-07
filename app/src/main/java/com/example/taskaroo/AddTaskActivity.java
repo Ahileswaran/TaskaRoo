@@ -125,11 +125,8 @@ public class AddTaskActivity extends AppCompatActivity {
             result = databaseHelper.updateTask(currentTask);
         } else {
             // Add new task
-            result = databaseHelper.addTask(taskName, description, date, time);
-        }
-
-        if (!date.isEmpty() && !time.isEmpty()) {
-            scheduleNotification(taskName, description, date, time);
+            // Modified to set COL_COMPLETED to 0 for new tasks
+            result = databaseHelper.addTask(taskName, description, date, time, 0);
         }
 
         if (result != -1) {
