@@ -29,15 +29,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_DATE = "date";
     public static final String COL_TIME = "time";
-
+    private static final String COL_NUMBER_OF_NOTIFICATIONS = "number_of_notifications";
     public static final String COL_COMPLETED = "completed";
-
     private static final String COL_TIMESTAMP = "timestamp";
-
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
@@ -45,18 +44,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TASK_NAME + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
-                COL_TIME + " TEXT, "
-                + COL_COMPLETED + " INTEGER,"
-                + COL_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" // Default timestamp
-                + ")";
+                COL_TIME + " TEXT, " +
+                COL_NUMBER_OF_NOTIFICATIONS + " INTEGER, " + // Add the column for number of notifications
+                COL_COMPLETED + " INTEGER, " +
+                COL_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")";
         db.execSQL(createTable);
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
+
     public long updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -66,20 +68,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_TIME, task.getTime());
         values.put(COL_COMPLETED, task.isCompleted() ? 1 : 0);
         values.put(COL_TIMESTAMP, getDateTime());
-        // Updating row
         return db.update(TABLE_NAME, values, COL_ID + " = ?",
                 new String[]{String.valueOf(task.getId())});
     }
 
-    public long addTask(String taskName, String description, String date, String time, byte[] completed) {
+    public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, byte[] completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_TASK_NAME, taskName);
         contentValues.put(COL_DESCRIPTION, description);
         contentValues.put(COL_DATE, date);
         contentValues.put(COL_TIME, time);
+        contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications); // Insert number of notifications
         contentValues.put(COL_COMPLETED, completed);
         return db.insert(TABLE_NAME, null, contentValues);
+    }
+
+
+    public int updateNumberOfNotifications(int taskId, int numberOfNotifications) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications);
+        int rowsAffected = db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+        return rowsAffected;
     }
 
     @SuppressLint("Range")
@@ -107,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[] {COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_COMPLETED}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_COMPLETED}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
         Task task = null;
         if (cursor.moveToFirst()) {
             task = new Task();
@@ -122,12 +134,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
-    // Method to update task completion status and timestamp
     public int updateTaskCompletionStatus(int taskId, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_COMPLETED, completed ? 1 : 0);
-        // Update timestamp only if the task is completed
         if (completed) {
             values.put(COL_TIMESTAMP, getDateTime());
         }
@@ -136,7 +146,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected;
     }
 
-    // Helper method to get current date and time
     private String getDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
@@ -158,7 +167,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String dueDate = cursor.getString(dateIndex);
                 String dueTime = cursor.getString(timeIndex);
 
-                // Parse the date and time to check if it is completed before the due date
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 try {
                     Date dueDateTime = sdf.parse(dueDate + " " + dueTime);
@@ -188,10 +196,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return "Information unavailable.";
     }
 
-    //Delete Task
     public void deleteTask(int taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
         db.close();
+    }
+
+    public long addTask(String taskName, String description, String date, String time, byte[] completed) {
+
+        return 0;
     }
 }
