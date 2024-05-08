@@ -108,6 +108,8 @@
 
     </LinearLayout>
 
+
+    <!-- Done Button for completed task-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -123,5 +125,23 @@
             android:text="Done"
             android:textSize="10dp" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="98dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="300dp"
+        android:layout_marginTop="60dp"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textViewReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
 
 </androidx.cardview.widget.CardView>
