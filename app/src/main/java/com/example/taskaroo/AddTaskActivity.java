@@ -26,6 +26,8 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText editTextDescription;
     private EditText editTextDate;
     private EditText editTextTime;
+
+    private EditText editTextReminder;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
@@ -55,6 +57,9 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextDescription = findViewById(R.id.editTextDescription);
         editTextDate = findViewById(R.id.editTextDate);
         editTextTime = findViewById(R.id.editTextTime);
+
+        editTextReminder = findViewById(R.id.editTextReminder);
+
         buttonSave = findViewById(R.id.buttonSaveTask);
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonReset = findViewById(R.id.buttonReset);
@@ -110,6 +115,7 @@ public class AddTaskActivity extends AppCompatActivity {
         String description = editTextDescription.getText().toString().trim();
         String date = editTextDate.getText().toString().trim();
         String time = editTextTime.getText().toString().trim();
+        byte[] number_of_notifications = editTextReminder.getText().toString().trim().getBytes();
 
         if (taskName.isEmpty() || date.isEmpty() || time.isEmpty()) {
             Toast.makeText(this, "Task name, date, and time are required fields", Toast.LENGTH_SHORT).show();
@@ -123,10 +129,12 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setDescription(description);
             currentTask.setDate(date);
             currentTask.setTime(time);
+            currentTask.setReminder(number_of_notifications);
+
             result = databaseHelper.updateTask(currentTask);
         } else {
             // Add new task
-            result = databaseHelper.addTask(taskName, description, date, time, completed);
+            result = databaseHelper.addTask(taskName, description, date, time, number_of_notifications, completed);
         }
 
         if (!date.isEmpty() && !time.isEmpty()) {

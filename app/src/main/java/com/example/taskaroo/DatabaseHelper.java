@@ -17,6 +17,8 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "TaskDB";
+    private byte[] number_of_notifications;
+
     public static String getCustomDatabaseName() {
         return DATABASE_NAME;
     }
@@ -72,13 +74,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(task.getId())});
     }
 
-    public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, byte[] completed) {
+    public long addTask(String taskName, String description, String date, String time, byte[] numberOfNotifications, byte[] completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_TASK_NAME, taskName);
         contentValues.put(COL_DESCRIPTION, description);
         contentValues.put(COL_DATE, date);
         contentValues.put(COL_TIME, time);
+        contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, number_of_notifications); // Insert number of notifications
         contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications); // Insert number of notifications
         contentValues.put(COL_COMPLETED, completed);
         return db.insert(TABLE_NAME, null, contentValues);
@@ -202,8 +205,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public long addTask(String taskName, String description, String date, String time, byte[] completed) {
-
-        return 0;
-    }
 }
