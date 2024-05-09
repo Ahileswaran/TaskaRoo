@@ -15,10 +15,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
 
@@ -115,7 +117,8 @@ public class AddTaskActivity extends AppCompatActivity {
         String description = editTextDescription.getText().toString().trim();
         String date = editTextDate.getText().toString().trim();
         String time = editTextTime.getText().toString().trim();
-        byte[] number_of_notifications = editTextReminder.getText().toString().trim().getBytes();
+        byte[] numberOfNotificationsBytes = editTextReminder.getText().toString().trim().getBytes();
+        int numberOfNotifications = ByteBuffer.wrap(numberOfNotificationsBytes).getInt(); // Convert byte array to int
 
         if (taskName.isEmpty() || date.isEmpty() || time.isEmpty()) {
             Toast.makeText(this, "Task name, date, and time are required fields", Toast.LENGTH_SHORT).show();
@@ -129,16 +132,16 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setDescription(description);
             currentTask.setDate(date);
             currentTask.setTime(time);
-            currentTask.setReminder(number_of_notifications);
+            currentTask.setReminder(numberOfNotificationsBytes); // Saving as byte[] for database
 
             result = databaseHelper.updateTask(currentTask);
         } else {
             // Add new task
-            result = databaseHelper.addTask(taskName, description, date, time, number_of_notifications, completed);
+            result = databaseHelper.addTask(taskName, description, date, time, numberOfNotificationsBytes, completed);
         }
 
         if (!date.isEmpty() && !time.isEmpty()) {
-            scheduleNotification(taskName, description, date, time);
+            scheduleNotification(taskName, description, date, time, numberOfNotifications);
         }
 
         if (result != -1) {
@@ -150,15 +153,11 @@ public class AddTaskActivity extends AppCompatActivity {
         finish();
     }
 
-
-
-
-
-    private void scheduleNotification(String taskName, String description, String date, String time) {
+    private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         try {
             // Combine date and time strings and parse into Date object
             String dateTimeString = date + " " + time;
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             Date dateTime = sdf.parse(dateTimeString);
 
             // Create Calendar object and set the time
@@ -172,11 +171,14 @@ public class AddTaskActivity extends AppCompatActivity {
             Intent notificationIntent = new Intent(this, NotificationReceiver.class);
             notificationIntent.putExtra("task_name", taskName);
             notificationIntent.putExtra("description", description);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // Schedule the notification
-            if (alarmManager != null) {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            // Create multiple pending intents for each notification
+            for (int i = 0; i < numberOfNotifications; i++) {
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                // Schedule the notification
+                if (alarmManager != null) {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + (i * AlarmManager.INTERVAL_HOUR), pendingIntent);
+                }
             }
         } catch (ParseException e) {
             e.printStackTrace();
