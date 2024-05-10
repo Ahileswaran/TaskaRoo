@@ -7,12 +7,10 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.nio.ByteBuffer;
@@ -41,7 +39,7 @@ public class AddTaskActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
+    /*
         // Inflate the custom layout for the ActionBar logo
         View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
 
@@ -51,6 +49,8 @@ public class AddTaskActivity extends AppCompatActivity {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setCustomView(actionBarLogo);
         }
+
+     */
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
@@ -117,8 +117,7 @@ public class AddTaskActivity extends AppCompatActivity {
         String description = editTextDescription.getText().toString().trim();
         String date = editTextDate.getText().toString().trim();
         String time = editTextTime.getText().toString().trim();
-        byte[] numberOfNotificationsBytes = editTextReminder.getText().toString().trim().getBytes();
-        int numberOfNotifications = ByteBuffer.wrap(numberOfNotificationsBytes).getInt(); // Convert byte array to int
+        int numberOfNotifications = Integer.parseInt(editTextReminder.getText().toString().trim());
 
         if (taskName.isEmpty() || date.isEmpty() || time.isEmpty()) {
             Toast.makeText(this, "Task name, date, and time are required fields", Toast.LENGTH_SHORT).show();
@@ -132,11 +131,17 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setDescription(description);
             currentTask.setDate(date);
             currentTask.setTime(time);
+
+            // Convert int numberOfNotifications to byte array
+            byte[] numberOfNotificationsBytes = ByteBuffer.allocate(4).putInt(numberOfNotifications).array();
             currentTask.setReminder(numberOfNotificationsBytes); // Saving as byte[] for database
 
             result = databaseHelper.updateTask(currentTask);
         } else {
             // Add new task
+
+            // Convert int numberOfNotifications to byte array
+            byte[] numberOfNotificationsBytes = ByteBuffer.allocate(4).putInt(numberOfNotifications).array();
             result = databaseHelper.addTask(taskName, description, date, time, numberOfNotificationsBytes, completed);
         }
 

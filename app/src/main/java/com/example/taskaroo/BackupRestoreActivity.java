@@ -1,17 +1,20 @@
 package com.example.taskaroo;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -25,41 +28,24 @@ import java.io.OutputStream;
 public class BackupRestoreActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
-    private static final int REQUEST_CODE_BACKUP_RESTORE = 2;
-    private static final int REQUEST_CODE_BACKUP_FILE = 3;
-    private static final int REQUEST_CODE_RESTORE_FILE = 4;
-
+    private static final int REQUEST_CODE_BACKUP_FILE = 2;
+    private static final int REQUEST_CODE_RESTORE_FILE = 3;
 
     private Button buttonBackupToStorage;
     private Button buttonRestoreFromStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // Inflate the custom layout for the ActionBar logo
-        View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
-
-        // Set the custom layout as the logo in the ActionBar
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(actionBarLogo);
-        }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.backup_activity);
-
 
         buttonBackupToStorage = findViewById(R.id.buttonBackupToStorage);
         buttonRestoreFromStorage = findViewById(R.id.buttonRestoreFromStorage);
 
-
-
-
         buttonBackupToStorage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                backupToStorage();
+                checkAndRequestStoragePermission(REQUEST_CODE_BACKUP_FILE);
             }
         });
 
@@ -69,38 +55,22 @@ public class BackupRestoreActivity extends AppCompatActivity {
                 checkAndRequestStoragePermission(REQUEST_CODE_RESTORE_FILE);
             }
         });
-
-
     }
 
     private void checkAndRequestStoragePermission(int requestCode) {
-        if (ContextCompat.checkSelfPermission(
-                BackupRestoreActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    BackupRestoreActivity.this,
+            ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    requestCode);
+                    REQUEST_CODE_STORAGE_PERMISSION);
         } else {
-            if (requestCode == REQUEST_CODE_BACKUP_RESTORE) {
+            if (requestCode == REQUEST_CODE_BACKUP_FILE) {
+                backupToStorage();
             } else if (requestCode == REQUEST_CODE_RESTORE_FILE) {
                 restoreFromStorage();
             }
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-
 
     private void backupToStorage() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -117,12 +87,14 @@ public class BackupRestoreActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_RESTORE_FILE);
     }
 
-
-
     private void performBackup(Uri backupUri) {
         try {
             ContentResolver resolver = getContentResolver();
             InputStream inputStream = new FileInputStream(getDatabasePath(DatabaseHelper.getCustomDatabaseName()));
+
+            // Log database schema info
+            logDatabaseInfo();
+
             OutputStream outputStream = resolver.openOutputStream(backupUri);
 
             byte[] buffer = new byte[1024];
@@ -144,44 +116,58 @@ public class BackupRestoreActivity extends AppCompatActivity {
 
     private void performRestore(Uri restoreUri) {
         ContentResolver resolver = getContentResolver();
-
         try (InputStream inputStream = resolver.openInputStream(restoreUri)) {
-            if (inputStream != null) {
-                String currentDBPath = getDatabasePath(DatabaseHelper.getCustomDatabaseName()).getAbsolutePath();
+            OutputStream outputStream = new FileOutputStream(getDatabasePath(DatabaseHelper.getCustomDatabaseName()));
 
-                try (FileOutputStream outputStream = new FileOutputStream(currentDBPath)) {
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = inputStream.read(buffer)) > 0) {
-                        outputStream.write(buffer, 0, length);
-                    }
-
-                    outputStream.flush();
-                    outputStream.close();
-
-                    Toast.makeText(this, "File restored", Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, "Error restoring file", Toast.LENGTH_SHORT).show();
-                }
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
             }
+
+            outputStream.flush();
+            outputStream.close();
+
+            Toast.makeText(this, "Restore completed", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error opening file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error restoring database", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void logDatabaseInfo() {
+        SQLiteDatabase db = new DatabaseHelper(this).getReadableDatabase();
+        Cursor cursor = db.rawQuery("PRAGMA table_info(your_table_name)", null);
+        while (cursor.moveToNext()) {
+            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("name"));
+            @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex("type"));
+            Log.d("DB_INFO", "Column name: " + name + " Type: " + type);
+        }
+        cursor.close();
+        db.close();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == REQUEST_CODE_BACKUP_FILE) {
+                backupToStorage();
+            } else if (requestCode == REQUEST_CODE_RESTORE_FILE) {
+                restoreFromStorage();
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
             if (requestCode == REQUEST_CODE_BACKUP_FILE) {
-                Uri backupUri = data.getData();
-                performBackup(backupUri);
+                performBackup(uri);
             } else if (requestCode == REQUEST_CODE_RESTORE_FILE) {
-                Uri restoreUri = data.getData();
-                performRestore(restoreUri);
+                performRestore(uri);
             }
         }
     }

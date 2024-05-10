@@ -17,21 +17,24 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "TaskDB";
-    private byte[] number_of_notifications;
 
     public static String getCustomDatabaseName() {
         return DATABASE_NAME;
     }
+
     public static final String TABLE_NAME = "tasks";
     public static final String COL_ID = "id";
+
     public static String getCustomDatabaseID(int taskId) {
         return COL_ID;
     }
+
     public static final String COL_TASK_NAME = "task_name";
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_DATE = "date";
     public static final String COL_TIME = "time";
-    private static final String COL_NUMBER_OF_NOTIFICATIONS = "number_of_notifications";
+    public static final String COL_NUMBER_OF_NOTIFICATIONS = "number_of_notifications";
+
     public static final String COL_COMPLETED = "completed";
     private static final String COL_TIMESTAMP = "timestamp";
 
@@ -47,13 +50,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_DESCRIPTION + " TEXT, " +
                 COL_DATE + " TEXT, " +
                 COL_TIME + " TEXT, " +
-                COL_NUMBER_OF_NOTIFICATIONS + " INTEGER, " + // Add the column for number of notifications
+                COL_NUMBER_OF_NOTIFICATIONS + " INTEGER, " +
                 COL_COMPLETED + " INTEGER, " +
                 COL_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
                 ")";
         db.execSQL(createTable);
     }
-
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -81,7 +83,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_DESCRIPTION, description);
         contentValues.put(COL_DATE, date);
         contentValues.put(COL_TIME, time);
-        contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, number_of_notifications); // Insert number of notifications
         contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications); // Insert number of notifications
         contentValues.put(COL_COMPLETED, completed);
         return db.insert(TABLE_NAME, null, contentValues);
@@ -204,5 +205,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
         db.close();
     }
-
 }
