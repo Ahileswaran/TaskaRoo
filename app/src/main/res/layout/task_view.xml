@@ -59,6 +59,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -84,6 +85,17 @@
 
 
         </LinearLayout>
+
+        <!-- Number of Notifications -->
+        <TextView
+            android:id="@+id/textViewNotificationCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <!-- Notification Icon -->
         <ImageView

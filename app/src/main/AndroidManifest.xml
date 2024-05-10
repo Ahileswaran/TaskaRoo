@@ -48,6 +48,9 @@
         <!-- Declaration of NotificationReceiver -->
         <receiver android:name=".NotificationReceiver" />
 
+        <!-- Declaration of ExporTasktPDF -->
+        <activity android:name=".ExportTaskPDFActivity" />
+
     </application>
 
 </manifest>
