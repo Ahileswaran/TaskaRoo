@@ -75,7 +75,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         List<Task> allTasks = dbHelper.getAllTasks();
 
         if (allTasks.isEmpty()) {
-            Log.d("ExportTaskPDFActivity", "No tasks found in the database");s
+            Log.d("ExportTaskPDFActivity", "No tasks found in the database");
         } else {
             Log.d("ExportTaskPDFActivity", "Number of tasks: " + allTasks.size());
         }
