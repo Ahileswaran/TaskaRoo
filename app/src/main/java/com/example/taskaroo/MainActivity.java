@@ -51,6 +51,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        // Inflate the custom layout for the ActionBar logo
+           /* View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
+
+        // Set the custom layout as the logo in the ActionBar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(actionBarLogo);
+        }
+        */
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -205,8 +215,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, BackupRestoreActivity.class));
         } else if (id == R.id.nav_select_theme) {
             toggleTheme();
-        } else if (id == R.id.nav_export_pdf) {
-            startActivity(new Intent(this, ExportTaskPDFActivity.class));
+        }else if(id == R.id.nav_export_pdf){
+            startActivity((new Intent(this, ExportTaskPDFActivity.class)));
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

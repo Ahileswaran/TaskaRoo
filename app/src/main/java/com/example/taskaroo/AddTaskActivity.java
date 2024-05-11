@@ -207,20 +207,8 @@ public class AddTaskActivity extends AppCompatActivity {
         if (task != null) {
             editTextTaskName.setText(task.getName());
             editTextDescription.setText(task.getDescription());
-
-            // Format the date and time before setting them to the EditText fields
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
-            try {
-                Date date = dateFormat.parse(task.getDate());
-                Date time = timeFormat.parse(task.getTime());
-                editTextDate.setText(dateFormat.format(date));
-                editTextTime.setText(timeFormat.format(time));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            editTextDate.setText(task.getDate());
+            editTextTime.setText(task.getTime());
         }
     }
-
 }

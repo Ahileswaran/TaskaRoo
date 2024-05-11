@@ -51,6 +51,9 @@
         <!-- Declaration of ExporTasktPDF -->
         <activity android:name=".ExportTaskPDFActivity" />
 
+        <!-- Declaration of PDF Preview  -->
+        <activity android:name=".PdfPreviewActivity" />
+
     </application>
 
 </manifest>
