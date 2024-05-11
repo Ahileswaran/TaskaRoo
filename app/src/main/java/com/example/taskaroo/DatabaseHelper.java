@@ -76,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(task.getId())});
     }
 
-    public long addTask(String taskName, String description, String date, String time, byte[] numberOfNotifications, byte[] completed) {
+    public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, int completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_TASK_NAME, taskName);

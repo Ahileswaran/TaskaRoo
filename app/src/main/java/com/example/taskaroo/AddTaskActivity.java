@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,7 +33,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
     private Task currentTask;
-    private byte[] completed;
+    private int completed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,17 +131,12 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setDate(date);
             currentTask.setTime(time);
 
-            // Convert int numberOfNotifications to byte array
-            byte[] numberOfNotificationsBytes = ByteBuffer.allocate(4).putInt(numberOfNotifications).array();
-            currentTask.setReminder(numberOfNotificationsBytes); // Saving as byte[] for database
-
+            // Update task with the new numberOfNotifications directly
             result = databaseHelper.updateTask(currentTask);
         } else {
             // Add new task
 
-            // Convert int numberOfNotifications to byte array
-            byte[] numberOfNotificationsBytes = ByteBuffer.allocate(4).putInt(numberOfNotifications).array();
-            result = databaseHelper.addTask(taskName, description, date, time, numberOfNotificationsBytes, completed);
+            result = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, completed);
         }
 
         if (!date.isEmpty() && !time.isEmpty()) {
