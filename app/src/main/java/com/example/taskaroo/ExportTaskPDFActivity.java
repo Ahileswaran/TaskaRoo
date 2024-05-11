@@ -5,8 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,17 +21,13 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class ExportTaskPDFActivity extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final int REQUEST_CODE_SAVE_PDF = 101;
-    private String pdfPath; // Declare pdfPath variable at the class level
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,21 +40,19 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         // Find the generatePDFButton by its id
         Button generatePDFButton = findViewById(R.id.generatePDFButton);
 
-        // Set OnClickListener to the generatePDFButton
-        generatePDFButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Check for permission to write to external storage
-                if (ContextCompat.checkSelfPermission(ExportTaskPDFActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    // Permission is already granted, proceed with generating PDF
-                    generatePDF();
-                } else {
-                    // Request permission to write to external storage
-                    ActivityCompat.requestPermissions(ExportTaskPDFActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            PERMISSION_REQUEST_CODE);
-                }
+        // Set OnClickListener to the generatePDFButton using lambda expression
+        generatePDFButton.setOnClickListener(v -> {
+            Log.d("ExportTaskPDFActivity", "Generate PDF button clicked");
+            // Check for permission to write to external storage
+            if (ContextCompat.checkSelfPermission(ExportTaskPDFActivity.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // Permission is already granted, proceed with generating PDF
+                generatePDF();
+            } else {
+                // Request permission to write to external storage
+                ActivityCompat.requestPermissions(ExportTaskPDFActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
             }
         });
     }
@@ -68,69 +63,60 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_SAVE_PDF && resultCode == RESULT_OK) {
             // PDF preview activity
             Intent previewIntent = new Intent(this, PdfPreviewActivity.class);
-            previewIntent.putExtra("pdfFilePath", pdfPath); // Pass the PDF file path to the preview activity
+            previewIntent.putExtra("pdfFilePath", data.getData().toString()); // Pass the PDF file path to the preview activity
             startActivity(previewIntent);
         }
     }
 
     // Generate All PDF Into PDF File
     public void generatePDF() {
+        Log.d("ExportTaskPDFActivity", "generatePDF() called");
         // Get all tasks from the database
         List<Task> allTasks = dbHelper.getAllTasks();
 
-        // Group tasks by month
-        Map<String, List<Task>> tasksByMonth = groupTasksByMonth(allTasks);
+        if (allTasks.isEmpty()) {
+            Log.d("ExportTaskPDFActivity", "No tasks found in the database");s
+        } else {
+            Log.d("ExportTaskPDFActivity", "Number of tasks: " + allTasks.size());
+        }
 
-        // Generate PDF with tasks grouped by month
+        // Generate PDF with all tasks
         try {
-            pdfPath = generatePDFWithTasksByMonth(tasksByMonth); // Assign value to pdfPath
-            // Save the PDF to storage
-            savePDFToStorage(pdfPath);
+            String pdfPath = generatePDFWithAllTasks(allTasks); // Assign value to pdfPath
+            // No need to save the PDF to storage here, as it's done in the savePDFToStorage method
         } catch (IOException e) {
             e.printStackTrace();
             // Handle error while generating PDF
         }
     }
 
-    // Group tasks by month
-    private Map<String, List<Task>> groupTasksByMonth(List<Task> tasks) {
-        Map<String, List<Task>> tasksByMonth = new TreeMap<>();
-        for (Task task : tasks) {
-            String month = task.getDate(); // Assuming date format is "MM.YYYY"
-            List<Task> tasksOfMonth = tasksByMonth.getOrDefault(month, new ArrayList<>());
-            tasksOfMonth.add(task);
-            tasksByMonth.put(month, tasksOfMonth);
-        }
-        return tasksByMonth;
-    }
-
-    // Generate PDF with tasks grouped by month
-    private String generatePDFWithTasksByMonth(Map<String, List<Task>> tasksByMonth) throws IOException {
+    // Generate PDF with all tasks
+    private String generatePDFWithAllTasks(List<Task> allTasks) throws IOException {
         String pdfPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/taskaroo_tasks.pdf"; // Path where PDF will be saved
 
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(pdfPath));
         Document document = new Document(pdfDoc);
 
-        for (Map.Entry<String, List<Task>> entry : tasksByMonth.entrySet()) {
-            String month = entry.getKey();
-            List<Task> tasks = entry.getValue();
-
-            // Add month title
-            document.add(new Paragraph(month));
-
-            // Add tasks under the month
-            for (Task task : tasks) {
-                String taskDetails = task.getId() + "\t" +
-                        task.getName() + "\t" +
-                        task.getDescription() + "\t" +
-                        task.getDate() + "\t" +
-                        task.getTime() + "\t" +
-                        (task.isCompleted() ? "Completed" : "Not Completed");
-                document.add(new Paragraph(taskDetails));
-            }
+        // Add tasks to the PDF
+        for (Task task : allTasks) {
+            String taskDetails = task.getId() + "\t" +
+                    task.getName() + "\t" +
+                    task.getDescription() + "\t" +
+                    task.getDate() + "\t" +
+                    task.getTime() + "\t" +
+                    (task.isCompleted() ? "Completed" : "Not Completed");
+            document.add(new Paragraph(taskDetails));
         }
 
         document.close();
+
+        // Show a toast indicating that PDF generation is complete
+        Toast.makeText(this, "PDF generated successfully", Toast.LENGTH_SHORT).show();
+
+        // Save PDF to storage
+        savePDFToStorage(pdfPath);
+
+        // Return the PDF file path
         return pdfPath;
     }
 
@@ -140,7 +126,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_TITLE, "taskaroo_tasks.pdf");
-        startActivityForResult(intent, REQUEST_CODE_SAVE_PDF);
+        startActivityForResult(Intent.createChooser(intent, "Save PDF"), REQUEST_CODE_SAVE_PDF);
     }
 
     @Override
