@@ -20,18 +20,14 @@
         android:layout_below="@id/textView"
         android:padding="8dp" />
 
-    <TextView
-        android:id="@+id/dayTextView"
+    <!-- Add the "Generate Calendar" button -->
+    <Button
+        android:id="@+id/generateCalendarButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/taskTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"/>
+        android:text="Generate Calendar"
+        android:layout_below="@id/calendarRecyclerView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
 </RelativeLayout>
