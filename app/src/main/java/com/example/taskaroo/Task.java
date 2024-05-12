@@ -9,7 +9,7 @@ public class Task {
     private boolean completed;
 
     private String timestamp; // Add timestamp field
-    private byte[] number_of_notifications;
+    private int number_of_notifications;
 
     public String getTimestamp() {
         return timestamp;
@@ -75,7 +75,7 @@ public class Task {
     public void setReminder(String numberOfNotifications) {
     }
 
-    public void setReminder(byte[] numberOfNotifications) {
+    public void setReminder(int numberOfNotifications) {
         this.number_of_notifications = numberOfNotifications;
     }
 }

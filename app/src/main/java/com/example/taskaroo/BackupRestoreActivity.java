@@ -87,7 +87,7 @@ public class BackupRestoreActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_RESTORE_FILE);
     }
 
-    private void performBackup(Uri backupUri) {
+    void performBackup(Uri backupUri) {
         try {
             ContentResolver resolver = getContentResolver();
             InputStream inputStream = new FileInputStream(getDatabasePath(DatabaseHelper.getCustomDatabaseName()));
