@@ -1,77 +1,85 @@
 package com.example.taskaroo;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class ExportTaskPDFActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final String TAG = "ExportTaskPDFActivity";
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.generate_pdf);
 
-        Button generatePDFButton = findViewById(R.id.generatePDFButton);
-        generatePDFButton.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-            } else {
+        dbHelper = new DatabaseHelper(this);
+
+        Button generateButton = findViewById(R.id.generatePDFButton);
+        generateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 generatePDF();
             }
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            generatePDF();
-        } else {
-            Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-        }
+    private boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     private void generatePDF() {
-        DatabaseHelper db = new DatabaseHelper(this);
-        List<Task> tasks = db.getAllTasks();
-        Document document = new Document();
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Tasks.pdf";
-
-        try {
-            PdfWriter.getInstance(document, new FileOutputStream(path));
-            document.open();
-            for (Task task : tasks) {
-                document.add(new Paragraph("ID: " + task.getId()));
-                document.add(new Paragraph("Name: " + task.getName()));
-                document.add(new Paragraph("Description: " + task.getDescription()));
-                document.add(new Paragraph("Date: " + task.getDate()));
-                document.add(new Paragraph("Time: " + task.getTime()));
-                document.add(new Paragraph("Completed: " + (task.isCompleted() ? "Yes" : "No")));
-                document.add(new Paragraph("\n\n"));
-            }
-            document.close();
-            Toast.makeText(this, "PDF Generated at " + path, Toast.LENGTH_LONG).show();
-        } catch (DocumentException | FileNotFoundException e) {
-            e.printStackTrace();
+        if (!isExternalStorageWritable()) {
+            Log.e(TAG, "External storage not writable");
+            Toast.makeText(this, "External storage not writable", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(300, 600, 1).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+
+        List<Task> tasks = dbHelper.getAllTasks();
+        int yPos = 50; // Initial Y position for task view
+
+        for (Task task : tasks) {
+            TaskView taskView = new TaskView(this); // Create a new instance of TaskView
+            taskView.setTask(task); // Set the task details
+            taskView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED); // Measure the view
+            taskView.layout(0, 0, 300, 0); // Layout the view within the specified width
+            taskView.draw(canvas); // Draw the view on the canvas
+            yPos += taskView.getMeasuredHeight() + 20; // Increment Y position
+        }
+
+        document.finishPage(page);
+
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "TaskarooTasks.pdf");
+        try {
+            document.writeTo(new FileOutputStream(file));
+            Toast.makeText(this, "PDF Generated Successfully", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to generate PDF: " + e.getMessage());
+            Toast.makeText(this, "Failed to Generate PDF", Toast.LENGTH_SHORT).show();
+        }
+
+        document.close();
     }
 }

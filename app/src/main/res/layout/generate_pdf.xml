@@ -1,31 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- generate_pdf.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:id="@+id/taskDetailsTextView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/generatePDFButton"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="101dp"
-        android:layout_marginBottom="64dp"
-        android:text="Export All task As PDF"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:text="Task Details:"
+        android:textSize="16sp"
+        android:padding="16dp"/>
 
     <Button
         android:id="@+id/generatePDFButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="129dp"
-        android:layout_marginBottom="382dp"
-        android:text="Generate PDF" />
-
+        android:layout_below="@id/taskDetailsTextView"
+        android:layout_centerHorizontal="true"
+        android:text="Generate PDF"/>
 </RelativeLayout>

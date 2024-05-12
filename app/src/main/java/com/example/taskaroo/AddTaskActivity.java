@@ -72,6 +72,7 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
+    //For select date
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -86,6 +87,7 @@ public class AddTaskActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    //For select time
     private void showTimePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -99,6 +101,7 @@ public class AddTaskActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
+    //Save Task
     private void saveTask() {
         String taskName = editTextTaskName.getText().toString().trim();
         String description = editTextDescription.getText().toString().trim();
@@ -135,9 +138,10 @@ public class AddTaskActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
         finish();
+
     }
 
-
+    //Schedule Notification for the task
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         // Set the first notification displayed flag for the task
 
@@ -174,19 +178,21 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
 
+    //Cancel button method
     private void cancelTask() {
         // Implement cancel task functionality
         // You can show a confirmation dialog here
         finish();
     }
 
+    //Reset field method
     private void resetFields() {
         editTextTaskName.setText("");
         editTextDescription.setText("");
         editTextDate.setText("");
         editTextTime.setText("");
     }
-
+    //Field tasks
     private void fillTaskData(Task task) {
         if (task != null) {
             editTextTaskName.setText(task.getName());

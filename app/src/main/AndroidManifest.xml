@@ -48,11 +48,10 @@
         <!-- Declaration of NotificationReceiver -->
         <receiver android:name=".NotificationReceiver" />
 
-        <!-- Declaration of ExporTasktPDF -->
+        <!-- Declaration of Export task to PDF -->
         <activity android:name=".ExportTaskPDFActivity" />
 
-        <!-- Declaration of PDF Preview  -->
-        <activity android:name=".PdfPreviewActivity" />
+
 
     </application>
 
