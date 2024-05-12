@@ -15,6 +15,8 @@ public class TaskView extends LinearLayout {
     private TextView textViewDate;
     private TextView textViewTime;
 
+    private TextView textViewNotification;
+
     public TaskView(Context context) {
         super(context);
         init(context);
@@ -36,6 +38,7 @@ public class TaskView extends LinearLayout {
         textViewDescription = findViewById(R.id.textViewDescription);
         textViewDate = findViewById(R.id.textViewDate);
         textViewTime = findViewById(R.id.textViewTime);
+        textViewNotification = findViewById(R.id.textViewNotification);
     }
 
     public void setTask(Task task) {
@@ -43,5 +46,6 @@ public class TaskView extends LinearLayout {
        textViewDescription.setText(task.getDescription());
        textViewDate.setText(task.getDate());
        textViewTime.setText(task.getTime());
+        textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
     }
 }

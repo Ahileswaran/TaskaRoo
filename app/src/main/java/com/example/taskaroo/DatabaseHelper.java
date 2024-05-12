@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -143,29 +144,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
-    public int updateTaskCompletionStatus(int id, boolean completed) {
+    public int updateTaskCompletionStatus(int taskId, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_COMPLETED, completed ? 1 : 0);
-        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        if (completed) {
+            values.put(COL_TIMESTAMP, getDateTime());
+        }
+        int rowsAffected = db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+        return rowsAffected;
     }
 
     public String getCompleteMessage(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String message = "";
+        String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +
+                " FROM " + TABLE_NAME + " WHERE " + COL_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)});
 
-        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_COMPLETED}, COL_ID + "=?", new String[]{String.valueOf(id)}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") int completed = cursor.getInt(cursor.getColumnIndex(COL_COMPLETED));
-            if (completed == 1) {
-                message = "Task with ID " + id + " is completed.";
-            } else {
-                message = "Task with ID " + id + " is not completed yet.";
+            int dateIndex = cursor.getColumnIndex(COL_DATE);
+            int timeIndex = cursor.getColumnIndex(COL_TIME);
+            int completedIndex = cursor.getColumnIndex(COL_COMPLETED);
+
+            if (dateIndex != -1 && timeIndex != -1 && completedIndex != -1) {
+                boolean completed = cursor.getInt(completedIndex) == 1;
+                String dueDate = cursor.getString(dateIndex);
+                String dueTime = cursor.getString(timeIndex);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                try {
+                    Date dueDateTime = sdf.parse(dueDate + " " + dueTime);
+                    Date now = new Date();
+
+                    if (completed) {
+                        if (now.before(dueDateTime)) {
+                            cursor.close();
+                            return "Task completed on time!";
+                        } else {
+                            cursor.close();
+                            return "Task completed, but was overdue!";
+                        }
+                    } else {
+                        cursor.close();
+                        return "Task not completed yet.";
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
-            cursor.close();
         }
 
-        return message;
+        if (cursor != null) {
+            cursor.close();
+        }
+        return "Information unavailable.";
     }
 
 }

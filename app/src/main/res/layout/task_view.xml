@@ -33,7 +33,7 @@
             <TextView
                 android:id="@+id/textViewDescription"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="match_parent"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/description_background"
                 android:textColor="@color/black"
@@ -41,7 +41,7 @@
 
             <TextView
                 android:id="@+id/textViewDate"
-                android:layout_width="99dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/date_background"
@@ -51,7 +51,17 @@
 
             <TextView
                 android:id="@+id/textViewTime"
-                android:layout_width="57dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/time_background"
+                android:textColor="@color/blue"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewNotification"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/time_background"

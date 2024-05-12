@@ -66,6 +66,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private ImageView imageButtonOverdue; // ImageView for the Overdue icon
         private ImageView imageButtonPending; // ImageView for the pending icon
         private ImageView imageButtonCheck;
+
+        private TextView textViewNotification;
         private View completeButton;
         private ProgressBar progressBar; // Progress bar for task progress
 
@@ -78,6 +80,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageButtonOverdue = itemView.findViewById(R.id.imageButtonOverdue);
             imageButtonPending = itemView.findViewById(R.id.imageButtonPending);
             imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck);
+            textViewNotification = itemView.findViewById(R.id.textViewNotification);
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
 
@@ -118,6 +121,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDescription.setText(task.getDescription());
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
+            textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
             // Get the current date and time
             Calendar now = Calendar.getInstance();
             try {
