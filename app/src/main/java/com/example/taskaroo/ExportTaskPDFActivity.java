@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -108,6 +109,18 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
 
     private void savePdfToFile(Uri uri) {
         try {
+            int fileNumber = 0;
+            String filename = "TaskarooTasks.pdf";
+
+            // Check if the file already exists
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), filename);
+            while (file.exists()) {
+                fileNumber++;
+                filename = "TaskarooTasks" + fileNumber + ".pdf";
+                file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), filename);
+            }
+
+            // Create the PDF document
             PdfDocument document = new PdfDocument();
             PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(842, 595, 1).create(); // A4 size: 842x595 points (landscape)
 
@@ -130,6 +143,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
                 document.finishPage(page);
             }
 
+            // Write the PDF to the file
             FileOutputStream outputStream = new FileOutputStream(getContentResolver().openFileDescriptor(uri, "w").getFileDescriptor());
             document.writeTo(outputStream);
             document.close();
