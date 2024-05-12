@@ -87,7 +87,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    Task task = tasks.get(position); // Assign the task at the current position
+                    Task task = tasks.get(position);
 
                     // Update completion status in the Task object
                     task.setCompleted(true);
@@ -99,7 +99,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
                     // Refresh RecyclerView if the completion status is successfully updated
                     // Handle the case where completion status update failed
-                    // For example, show an error message
                     if (isUpdated == 0) {
                         Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
                     } else {
@@ -108,7 +107,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                         String completeMessage = dbHelper.getCompleteMessage(task.getId());
                         // Check if the complete message is not null before displaying it
                         if (completeMessage != null) {
-                            // Do whatever you want with the complete message, such as showing a toast
                             Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -126,6 +124,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             // Get the current date and time
             Calendar now = Calendar.getInstance();
+
+
+
             try {
                 // Parse the task's due date and time into a Date object
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -163,6 +164,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+
+
+            try {
+                // Parse the task's due date and time into a Date object
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
+
+                // Check if the task is overdue or if the task's date and time match the current date and time
+                if (dueDate != null && (dueDate.before(now.getTime()) || dueDate.equals(now.getTime()))) {
+                    // Task is overdue or the task's date and time match the current date and time, show the completeButton
+                    completeButton.setVisibility(View.VISIBLE);
+                } else {
+                    // Task is not overdue and the task's date and time do not match the current date and time, hide the completeButton
+                    completeButton.setVisibility(View.GONE);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
         }
 
         private int calculateProgress(long diffInMilliseconds) {
@@ -205,35 +225,5 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         return sdf.format(new Date());
     }
 
-    // Helper method to get task  overdue
-    private boolean isTaskOverdue(Task task) {
-        // Parse the due date and time
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        try {
-            Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-            // Get current date and time
-            Calendar now = Calendar.getInstance();
-            // Check if the task's due date is before the current date and time
-            return dueDate.before(now.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    // Helper method to get task pending
-    private boolean isTaskPending(Task task) {
-        // Parse the due date and time
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        try {
-            Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-            // Get current date and time
-            Calendar now = Calendar.getInstance();
-            // Check if the task's due date is after the current date and time
-            return dueDate.after(now.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
 }
