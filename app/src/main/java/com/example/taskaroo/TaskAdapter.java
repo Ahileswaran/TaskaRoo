@@ -102,8 +102,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     } else {
                         // Hide the completeButton after completion
                         completeButton.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-
                         // Notify adapter of data change
                         notifyItemChanged(position);
                         // Retrieve complete message with task ID from the database
