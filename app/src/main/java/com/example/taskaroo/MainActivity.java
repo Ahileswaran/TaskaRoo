@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -43,10 +41,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlertDialog deleteConfirmationDialog;
     private DrawerLayout drawerLayout;
 
-    // Define notification ID constant
-    private static final int NOTIFICATION_ID = 1001;
-    // Define permission request code
-    private static final int REQUEST_CODE_PERMISSION_NOTIFICATION = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         createNotificationChannel();
     }
 
+    //Create Notification Chanel
     private void createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             CharSequence name = "Taskaroo Channel";
@@ -137,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         displayTasks();  // Refresh the list each time the activity resumes
     }
 
+    //Method to display task
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
@@ -173,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         taskAdapter.notifyDataSetChanged();
     }
 
+    //Confirmation method to delete task
     private void showDeleteConfirmationDialog(Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirm Delete")
@@ -197,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Select item form the navigation drawer
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -221,14 +219,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Delete Task
     private void deleteTask(Task task) {
         databaseHelper.deleteTask(task.getId());
         displayTasks();
     }
 
-    public void onCheckButtonClick(View view) {
-        Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
-    }
+
 
     private void deleteTask(int taskId) {
         databaseHelper.deleteTask(taskId);
@@ -255,12 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(intent);
     }
 
-    public void onCheckClicked(View view) {
-        int taskId = (int) view.getTag();
-        Toast.makeText(this, "Task completed successfully!", Toast.LENGTH_SHORT).show();
-        deleteTask(taskId);
-    }
-
+    //Select theme dark or light
     private void toggleTheme() {
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (nightModeFlags) {

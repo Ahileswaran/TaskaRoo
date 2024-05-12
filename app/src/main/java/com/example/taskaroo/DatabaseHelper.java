@@ -38,7 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return COL_ID;
     }
 
-
+    //Create Database
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
@@ -60,6 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    //Adding the task
     public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, int completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -72,6 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_NAME, null, values);
     }
 
+    //Get all the tasks
     @SuppressLint("Range")
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -94,6 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
+    //Update task
     public int updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -107,17 +110,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
     }
 
+    //Delete Task
     public void deleteTask(int taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
         db.close();
     }
 
+    //helper method for get time
     private String getDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
     }
 
+    //Get the task by ID
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -137,6 +143,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return task;
     }
 
+    //Method for task completion
     public int updateTaskCompletionStatus(int taskId, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -149,6 +156,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected;
     }
 
+    //Method to display complete task message
     public String getCompleteMessage(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +

@@ -7,9 +7,8 @@ public class Task {
     private String date;
     private String time;
     private boolean completed;
-    private String timestamp; // Timestamp field
+    private String timestamp;
 
-    // Add number of notifications field
     private int numberOfNotifications;
 
 
