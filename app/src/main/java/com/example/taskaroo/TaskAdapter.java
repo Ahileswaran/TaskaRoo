@@ -83,7 +83,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
 
-
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
@@ -91,24 +90,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
                     // Update completion status in the Task object
                     task.setCompleted(true);
-                    task.setTimestamp(getDateTime()); // Use getDateTime() method
+                    task.setTimestamp(getDateTime());
 
                     // Update completion status and timestamp in the database
                     DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext());
                     int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
 
-                    // Refresh RecyclerView if the completion status is successfully updated
-                    // Handle the case where completion status update failed
+                    // Handle completion status update
                     if (isUpdated == 0) {
                         Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Notify adapter of data change
                         notifyItemChanged(position);
                         // Retrieve complete message with task ID from the database
                         String completeMessage = dbHelper.getCompleteMessage(task.getId());
-                        // Check if the complete message is not null before displaying it
                         if (completeMessage != null) {
                             Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
                         }
+
                     }
                 }
             });
@@ -121,12 +120,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
-
             // Get the current date and time
             Calendar now = Calendar.getInstance();
 
-
-
+            //Overdue and pending task
             try {
                 // Parse the task's due date and time into a Date object
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -147,8 +144,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     imageButtonPending.setVisibility(View.GONE);
                     imageButtonCheck.setVisibility(View.VISIBLE);
                 } else {
-                    // Here you can handle the visibility of other icons based on different conditions
-                    // For example, if the task is overdue, show overdue icon, if it's pending, show pending icon, etc.
+
+                    // if the task is overdue, show overdue icon, if it's pending, show pending icon
                     if (diffInMilliseconds < 0) {
                         // Task is overdue
                         imageButtonOverdue.setVisibility(View.VISIBLE);
@@ -159,13 +156,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                         imageButtonOverdue.setVisibility(View.GONE);
                         imageButtonPending.setVisibility(View.VISIBLE);
                         imageButtonCheck.setVisibility(View.GONE);
+
                     }
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-
+            //Hide the complete button visibility
             try {
                 // Parse the task's due date and time into a Date object
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -182,7 +180,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
         }
 
         private int calculateProgress(long diffInMilliseconds) {
@@ -224,6 +221,4 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
     }
-
-
 }
