@@ -1,5 +1,6 @@
 package com.example.taskaroo;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
@@ -7,6 +8,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -30,10 +32,11 @@ public class AddTaskActivity extends AppCompatActivity {
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
-
+    private EditText editTextReminders;
     private DatabaseHelper databaseHelper;
     private Task currentTask;
     private int completed;
+    private View editTextNumberOfNotifications;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,7 @@ public class AddTaskActivity extends AppCompatActivity {
         String time = editTextTime.getText().toString().trim();
         int numberOfNotifications = Integer.parseInt(editTextReminder.getText().toString().trim());
 
+
         if (taskName.isEmpty() || date.isEmpty() || time.isEmpty()) {
             Toast.makeText(this, "Task name, date, and time are required fields", Toast.LENGTH_SHORT).show();
             return;
@@ -120,6 +124,7 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setDescription(description);
             currentTask.setDate(date);
             currentTask.setTime(time);
+            currentTask.setNumberOfNotifications(numberOfNotifications);
 
             // Update task with the new numberOfNotifications directly
             databaseHelper.updateTask(currentTask);
@@ -193,12 +198,14 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextTime.setText("");
     }
     //Field tasks
+    @SuppressLint("WrongViewCast")
     private void fillTaskData(Task task) {
         if (task != null) {
             editTextTaskName.setText(task.getName());
             editTextDescription.setText(task.getDescription());
             editTextDate.setText(task.getDate());
             editTextTime.setText(task.getTime());
+            editTextNumberOfNotifications = findViewById(R.id.editTextReminder);
         }
     }
 }
