@@ -1,5 +1,7 @@
 package com.example.taskaroo;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -59,6 +61,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private Context context;
         private TextView textViewTaskName;
         private TextView textViewDescription;
         private TextView textViewDate;
@@ -82,6 +85,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewNotification = itemView.findViewById(R.id.textViewNotification);
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
+
+            context = itemView.getContext();
+
+            itemView.setOnClickListener(v -> {
+                Task task = tasks.get(getAdapterPosition());
+                Intent intent = new Intent(context, AddTaskActivity.class);
+                intent.putExtra("task_id", task.getId());
+                intent.putExtra("task_name", task.getName());
+                intent.putExtra("task_description", task.getDescription());
+                intent.putExtra("task_date", task.getDate());
+                intent.putExtra("task_time", task.getTime());
+                intent.putExtra("task_notification", task.getNumberOfNotifications());
+                context.startActivity(intent);
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    task = tasks.get(position);
+                    listener.onTaskClick(task);
+                }
+            });
+
 
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -231,4 +254,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
     }
+
+
+
 }
