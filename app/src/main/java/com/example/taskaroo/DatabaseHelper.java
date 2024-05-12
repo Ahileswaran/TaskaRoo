@@ -6,9 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,30 +15,28 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "TaskDB";
-
-    public static String getCustomDatabaseName() {
-        return DATABASE_NAME;
-    }
-
     public static final String TABLE_NAME = "tasks";
     public static final String COL_ID = "id";
-
-    public static String getCustomDatabaseID(int taskId) {
-        return COL_ID;
-    }
-
     public static final String COL_TASK_NAME = "task_name";
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_DATE = "date";
     public static final String COL_TIME = "time";
     public static final String COL_NUMBER_OF_NOTIFICATIONS = "number_of_notifications";
-
     public static final String COL_COMPLETED = "completed";
     private static final String COL_TIMESTAMP = "timestamp";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
+
+    public static String getCustomDatabaseName() {
+        return DATABASE_NAME;
+    }
+
+    public static String getCustomDatabaseID(int taskId) {
+        return COL_ID;
+    }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -63,39 +59,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long updateTask(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_TASK_NAME, task.getName());
-        values.put(COL_DESCRIPTION, task.getDescription());
-        values.put(COL_DATE, task.getDate());
-        values.put(COL_TIME, task.getTime());
-        values.put(COL_COMPLETED, task.isCompleted() ? 1 : 0);
-        values.put(COL_TIMESTAMP, getDateTime());
-        return db.update(TABLE_NAME, values, COL_ID + " = ?",
-                new String[]{String.valueOf(task.getId())});
-    }
-
     public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, int completed) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_TASK_NAME, taskName);
-        contentValues.put(COL_DESCRIPTION, description);
-        contentValues.put(COL_DATE, date);
-        contentValues.put(COL_TIME, time);
-        contentValues.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications); // Insert number of notifications
-        contentValues.put(COL_COMPLETED, completed);
-        return db.insert(TABLE_NAME, null, contentValues);
+        ContentValues values = new ContentValues();
+        values.put(COL_TASK_NAME, taskName);
+        values.put(COL_DESCRIPTION, description);
+        values.put(COL_DATE, date);
+        values.put(COL_TIME, time);
+        values.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications);
+        values.put(COL_COMPLETED, completed);
+        return db.insert(TABLE_NAME, null, values);
     }
-
 
     public int updateNumberOfNotifications(int taskId, int numberOfNotifications) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications);
-        int rowsAffected = db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
-        db.close();
-        return rowsAffected;
+        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
     }
 
     @SuppressLint("Range")
@@ -111,43 +91,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
                 task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
                 task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+                task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
                 task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
                 taskList.add(task);
-                Log.d("DatabaseHelper", "Task retrieved: " + task.getName());
             } while (cursor.moveToNext());
         }
         cursor.close();
         return taskList;
     }
 
-    @SuppressLint("Range")
-    public Task getTaskById(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID, COL_TASK_NAME, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_COMPLETED}, COL_ID + " =?", new String[]{String.valueOf(id)}, null, null, null);
-        Task task = null;
-        if (cursor.moveToFirst()) {
-            task = new Task();
-            task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
-            task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
-            task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
-            task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
-            task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
-            task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
-        }
-        cursor.close();
-        return task;
-    }
-
-    public int updateTaskCompletionStatus(int taskId, boolean completed) {
+    public int updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_COMPLETED, completed ? 1 : 0);
-        if (completed) {
-            values.put(COL_TIMESTAMP, getDateTime());
-        }
-        int rowsAffected = db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
+        values.put(COL_TASK_NAME, task.getName());
+        values.put(COL_DESCRIPTION, task.getDescription());
+        values.put(COL_DATE, task.getDate());
+        values.put(COL_TIME, task.getTime());
+        values.put(COL_NUMBER_OF_NOTIFICATIONS, task.getNumberOfNotifications());
+        values.put(COL_COMPLETED, task.isCompleted() ? 1 : 0);
+        values.put(COL_TIMESTAMP, getDateTime());
+        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
+    }
+
+    public void deleteTask(int taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
         db.close();
-        return rowsAffected;
     }
 
     private String getDateTime() {
@@ -155,54 +124,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sdf.format(new Date());
     }
 
-    public String getCompleteMessage(int id) {
+    @SuppressLint("Range")
+    public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +
-                " FROM " + TABLE_NAME + " WHERE " + COL_ID + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)});
-
+        Task task = null;
+        Cursor cursor = db.query(TABLE_NAME, null, COL_ID + "=?", new String[]{String.valueOf(id)}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            int dateIndex = cursor.getColumnIndex(COL_DATE);
-            int timeIndex = cursor.getColumnIndex(COL_TIME);
-            int completedIndex = cursor.getColumnIndex(COL_COMPLETED);
-
-            if (dateIndex != -1 && timeIndex != -1 && completedIndex != -1) {
-                boolean completed = cursor.getInt(completedIndex) == 1;
-                String dueDate = cursor.getString(dateIndex);
-                String dueTime = cursor.getString(timeIndex);
-
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                try {
-                    Date dueDateTime = sdf.parse(dueDate + " " + dueTime);
-                    Date now = new Date();
-
-                    if (completed) {
-                        if (now.before(dueDateTime)) {
-                            cursor.close();
-                            return "Task completed on time!";
-                        } else {
-                            cursor.close();
-                            return "Task completed, but was overdue!";
-                        }
-                    } else {
-                        cursor.close();
-                        return "Task not completed yet.";
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (cursor != null) {
+            task = new Task();
+            task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
+            task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
+            task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
+            task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
+            task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+            task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
+            task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
             cursor.close();
         }
-        return "Information unavailable.";
+        return task;
     }
 
-    public void deleteTask(int taskId) {
+    public int updateTaskCompletionStatus(int id, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("tasks", "id = ?", new String[]{String.valueOf(taskId)});
-        db.close();
+        ContentValues values = new ContentValues();
+        values.put(COL_COMPLETED, completed ? 1 : 0);
+        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(id)});
     }
+
+    public String getCompleteMessage(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String message = "";
+
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_COMPLETED}, COL_ID + "=?", new String[]{String.valueOf(id)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int completed = cursor.getInt(cursor.getColumnIndex(COL_COMPLETED));
+            if (completed == 1) {
+                message = "Task with ID " + id + " is completed.";
+            } else {
+                message = "Task with ID " + id + " is not completed yet.";
+            }
+            cursor.close();
+        }
+
+        return message;
+    }
+
 }

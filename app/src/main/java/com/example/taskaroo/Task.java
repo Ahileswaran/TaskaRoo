@@ -7,17 +7,11 @@ public class Task {
     private String date;
     private String time;
     private boolean completed;
+    private String timestamp; // Timestamp field
 
-    private String timestamp; // Add timestamp field
-    private int number_of_notifications;
+    // Add number of notifications field
+    private int numberOfNotifications;
 
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
     // Constructor
     public Task() {
         // Default constructor
@@ -72,10 +66,19 @@ public class Task {
         this.completed = completed;
     }
 
-    public void setReminder(String numberOfNotifications) {
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setReminder(int numberOfNotifications) {
-        this.number_of_notifications = numberOfNotifications;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public int getNumberOfNotifications() {
+        return numberOfNotifications;
+    }
+
+    public void setNumberOfNotifications(int numberOfNotifications) {
+        this.numberOfNotifications = numberOfNotifications;
     }
 }
