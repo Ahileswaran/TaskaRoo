@@ -100,6 +100,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     if (isUpdated == 0) {
                         Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Hide the completeButton after completion
+                        completeButton.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+
                         // Notify adapter of data change
                         notifyItemChanged(position);
                         // Retrieve complete message with task ID from the database
@@ -120,6 +124,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
+            // Hide the completeButton if the task is completed
+            if (task.isCompleted()) {
+                completeButton.setVisibility(View.GONE);
+            } else {
+                Calendar now = Calendar.getInstance();
+
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                    Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
+                    long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+
+                    // Determine visibility of completeButton
+                    if (diffInMilliseconds < 0 || dueDate.equals(now.getTime())) {
+                        completeButton.setVisibility(View.VISIBLE);
+                    } else {
+                        completeButton.setVisibility(View.GONE);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
             // Get the current date and time
             Calendar now = Calendar.getInstance();
 
@@ -162,26 +188,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
-            //Hide the complete button visibility
-            try {
-                // Parse the task's due date and time into a Date object
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-
-                // Check if the task is overdue or if the task's date and time match the current date and time
-                if (dueDate != null && (dueDate.before(now.getTime()) || dueDate.equals(now.getTime()))) {
-                    // Task is overdue or the task's date and time match the current date and time, show the completeButton
-                    completeButton.setVisibility(View.VISIBLE);
-                } else {
-                    // Task is not overdue and the task's date and time do not match the current date and time, hide the completeButton
-                    completeButton.setVisibility(View.GONE);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
         }
 
+
+
+        //Calculate teh progress for the task
         private int calculateProgress(long diffInMilliseconds) {
             // Define thresholds for progress levels (in milliseconds)
             long highThreshold = 24 * 60 * 60 * 1000; // 1 day
@@ -202,6 +213,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        //Set progress bar color for the priority of the task
         private void setProgressBarColor(int progress) {
             if (progress >= 75) {
                 // Red color for high priority
