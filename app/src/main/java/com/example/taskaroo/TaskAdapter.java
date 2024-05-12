@@ -66,7 +66,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private ImageView imageButtonOverdue; // ImageView for the Overdue icon
         private ImageView imageButtonPending; // ImageView for the pending icon
         private ImageView imageButtonCheck;
-
         private TextView textViewNotification;
         private View completeButton;
         private ProgressBar progressBar; // Progress bar for task progress
@@ -83,6 +82,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewNotification = itemView.findViewById(R.id.textViewNotification);
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
+
+            completeButton.setVisibility(View.GONE); // Initially hide the completeButton
 
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -122,6 +123,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
+
+
+            boolean isFirstNotificationDisplayed = task.isFirstNotificationDisplayed();
+            boolean isOverdue = isTaskOverdue(task);
+            boolean isPending = isTaskPending(task);
+
+            if (isFirstNotificationDisplayed || isOverdue || isPending) {
+                // If the first notification is displayed, or the task is overdue or pending, show the completeButton
+                completeButton.setVisibility(View.VISIBLE);
+            }
+
+
+
             // Get the current date and time
             Calendar now = Calendar.getInstance();
             try {
@@ -202,4 +216,36 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
     }
+
+    // Helper method to get task  overdue
+    private boolean isTaskOverdue(Task task) {
+        // Parse the due date and time
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        try {
+            Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
+            // Get current date and time
+            Calendar now = Calendar.getInstance();
+            // Check if the task's due date is before the current date and time
+            return dueDate.before(now.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    // Helper method to get task pending
+    private boolean isTaskPending(Task task) {
+        // Parse the due date and time
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        try {
+            Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
+            // Get current date and time
+            Calendar now = Calendar.getInstance();
+            // Check if the task's due date is after the current date and time
+            return dueDate.after(now.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

@@ -72,13 +72,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_NAME, null, values);
     }
 
-    public int updateNumberOfNotifications(int taskId, int numberOfNotifications) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications);
-        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
-    }
-
     @SuppressLint("Range")
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -199,6 +192,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return "Information unavailable.";
+    }
+
+    //Method to get the last added task from the database
+    @SuppressLint("Range")
+    public Task getLastAddedTask() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Task task = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY " + COL_ID + " DESC LIMIT 1", null);
+        if (cursor != null && cursor.moveToFirst()) {
+            task = new Task();
+            task.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
+            task.setName(cursor.getString(cursor.getColumnIndex(COL_TASK_NAME)));
+            task.setDescription(cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION)));
+            task.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
+            task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
+            task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
+            task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
+            cursor.close();
+        }
+        return task;
     }
 
 }

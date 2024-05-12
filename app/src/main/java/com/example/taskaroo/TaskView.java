@@ -14,7 +14,6 @@ public class TaskView extends LinearLayout {
     private TextView textViewDescription;
     private TextView textViewDate;
     private TextView textViewTime;
-
     private TextView textViewNotification;
 
     public TaskView(Context context) {

@@ -38,18 +38,6 @@ public class AddTaskActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-    /*
-        // Inflate the custom layout for the ActionBar logo
-        View actionBarLogo = getLayoutInflater().inflate(R.layout.action_bar_logo, null);
-
-        // Set the custom layout as the logo in the ActionBar
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(actionBarLogo);
-        }
-
-     */
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
@@ -123,7 +111,6 @@ public class AddTaskActivity extends AppCompatActivity {
             return;
         }
 
-        long result;
         if (currentTask != null) {
             // Update existing task
             currentTask.setName(taskName);
@@ -132,27 +119,35 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask.setTime(time);
 
             // Update task with the new numberOfNotifications directly
-            result = databaseHelper.updateTask(currentTask);
+            databaseHelper.updateTask(currentTask);
+
+            // Set the first notification displayed flag for the task
+            currentTask.setFirstNotificationDisplayed(false);
         } else {
             // Add new task
+            long result = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, completed);
 
-            result = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, completed);
+            // Retrieve the newly added task from the database
+            currentTask = databaseHelper.getLastAddedTask();
+
+            // Set the first notification displayed flag for the task
+            if (currentTask != null) {
+                currentTask.setFirstNotificationDisplayed(true);
+            }
         }
 
         if (!date.isEmpty() && !time.isEmpty()) {
             scheduleNotification(taskName, description, date, time, numberOfNotifications);
         }
 
-        if (result != -1) {
-            Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Failed to save task", Toast.LENGTH_SHORT).show();
-        }
-
+        Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
         finish();
     }
 
+
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
+        // Set the first notification displayed flag for the task
+
         try {
             // Combine date and time strings and parse into Date object
             String dateTimeString = date + " " + time;
@@ -182,7 +177,9 @@ public class AddTaskActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
     }
+
 
     private void cancelTask() {
         // Implement cancel task functionality
