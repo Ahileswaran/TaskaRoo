@@ -39,35 +39,95 @@
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/textViewDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@drawable/date_background"
-                android:textColor="@color/light_green"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/textViewTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@drawable/time_background"
-                android:textColor="@color/blue"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                <!-- Date Icon and Value -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginEnd="16dp">
 
-            <TextView
-                android:id="@+id/textViewNotification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@drawable/time_background"
-                android:textColor="@color/blue"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                    <!-- Date Icon -->
+                    <ImageView
+                        android:id="@+id/imageViewDateIcon"
+                        android:layout_width="28dp"
+                        android:layout_height="match_parent"
+                        android:minHeight="39dp"
+                        android:src="@drawable/ic_date" />
+
+                    <!-- Date Value -->
+                    <TextView
+                        android:id="@+id/textViewDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/date_background"
+                        android:textColor="@color/light_green"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Time Icon and Value -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginEnd="16dp">
+
+                    <!-- Time Icon -->
+                    <ImageView
+                        android:id="@+id/imageViewTimeIcon"
+                        android:layout_width="28dp"
+                        android:layout_height="match_parent"
+                        android:minHeight="39dp"
+                        android:src="@drawable/ic_time" />
+
+                    <!-- Time Value -->
+                    <TextView
+                        android:id="@+id/textViewTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/time_background"
+                        android:textColor="@color/blue"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Reminders Icon and Value -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Reminders Icon -->
+                    <ImageView
+                        android:id="@+id/imageViewRemindersIcon"
+                        android:layout_width="26dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_reminder" />
+
+                    <!-- Reminders Value -->
+                    <TextView
+                        android:id="@+id/textViewNotification"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/time_background"
+                        android:textColor="@color/blue"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+
 
 
             <ProgressBar
