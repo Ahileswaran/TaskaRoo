@@ -13,17 +13,6 @@ public class Task {
     private int numberOfNotifications;
 
 
-    private boolean firstNotificationDisplayed;
-
-    public boolean isFirstNotificationDisplayed() {
-        return firstNotificationDisplayed;
-    }
-
-    public void setFirstNotificationDisplayed(boolean firstNotificationDisplayed) {
-        this.firstNotificationDisplayed = firstNotificationDisplayed;
-    }
-
-
     // Constructor
     public Task() {
         // Default constructor

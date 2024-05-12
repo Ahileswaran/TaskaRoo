@@ -121,19 +121,12 @@ public class AddTaskActivity extends AppCompatActivity {
             // Update task with the new numberOfNotifications directly
             databaseHelper.updateTask(currentTask);
 
-            // Set the first notification displayed flag for the task
-            currentTask.setFirstNotificationDisplayed(false);
         } else {
             // Add new task
             long result = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, completed);
 
             // Retrieve the newly added task from the database
             currentTask = databaseHelper.getLastAddedTask();
-
-            // Set the first notification displayed flag for the task
-            if (currentTask != null) {
-                currentTask.setFirstNotificationDisplayed(true);
-            }
         }
 
         if (!date.isEmpty() && !time.isEmpty()) {

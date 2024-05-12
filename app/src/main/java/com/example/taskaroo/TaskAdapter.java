@@ -83,7 +83,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
 
-            completeButton.setVisibility(View.GONE); // Initially hide the completeButton
 
             completeButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -123,17 +122,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
-
-
-            boolean isFirstNotificationDisplayed = task.isFirstNotificationDisplayed();
-            boolean isOverdue = isTaskOverdue(task);
-            boolean isPending = isTaskPending(task);
-
-            if (isFirstNotificationDisplayed || isOverdue || isPending) {
-                // If the first notification is displayed, or the task is overdue or pending, show the completeButton
-                completeButton.setVisibility(View.VISIBLE);
-            }
-
 
 
             // Get the current date and time
