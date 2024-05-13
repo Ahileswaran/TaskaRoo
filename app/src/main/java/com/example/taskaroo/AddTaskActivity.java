@@ -42,6 +42,7 @@ public class AddTaskActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
 
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
 
@@ -182,7 +183,6 @@ public class AddTaskActivity extends AppCompatActivity {
 
     }
 
-
     //Cancel button method
     private void cancelTask() {
         // Implement cancel task functionality
@@ -196,6 +196,7 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextDescription.setText("");
         editTextDate.setText("");
         editTextTime.setText("");
+        editTextReminder.setText("");
     }
     //Field tasks
     @SuppressLint("WrongViewCast")
@@ -208,4 +209,6 @@ public class AddTaskActivity extends AppCompatActivity {
             editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
         }
     }
+
+
 }
