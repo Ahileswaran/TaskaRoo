@@ -205,7 +205,7 @@ public class AddTaskActivity extends AppCompatActivity {
             editTextDescription.setText(task.getDescription());
             editTextDate.setText(task.getDate());
             editTextTime.setText(task.getTime());
-            editTextNumberOfNotifications = findViewById(R.id.editTextReminder);
+            editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
         }
     }
 }
