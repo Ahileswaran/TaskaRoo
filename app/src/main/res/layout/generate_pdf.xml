@@ -3,19 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/taskDetailsTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Task Details:"
-        android:textSize="16sp"
-        android:padding="16dp"/>
 
     <Button
         android:id="@+id/generatePDFButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/taskDetailsTextView"
-        android:layout_centerHorizontal="true"
-        android:text="Generate PDF"/>
+        android:layout_centerInParent="true"
+        android:text="Generate PDF" />
 </RelativeLayout>

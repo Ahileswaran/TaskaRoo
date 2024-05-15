@@ -51,9 +51,6 @@
         <!-- Declaration of Export task to PDF -->
         <activity android:name=".ExportTaskPDFActivity" />
 
-        <!-- Declaration of ParticleSystem -->
-        <activity android:name=".ParticleSystem" />
-
 
     </application>
 
