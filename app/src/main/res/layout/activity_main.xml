@@ -34,6 +34,12 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
 
+        <!-- KonfettiView added within the ConstraintLayout -->
+        <nl.dionsegijn.konfetti.xml.KonfettiView
+            android:id="@+id/konfettiView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

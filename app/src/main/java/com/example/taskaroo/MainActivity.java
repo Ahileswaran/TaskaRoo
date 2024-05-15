@@ -1,5 +1,6 @@
 package com.example.taskaroo;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -41,13 +43,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlertDialog deleteConfirmationDialog;
     private DrawerLayout drawerLayout;
 
+    private Button completeButton;
+    private ParticleSystem particleSystem;
+    private ViewKonfetti viewKonfetti;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // Initialize the ViewKonfetti instance
+        viewKonfetti = new ViewKonfetti();
+
+        // Initialize the ParticleSystem
+        initializeParticleSystem();
+
+        // Start the particle system
+        particleSystem.start();
+
 
         // Initialize views
         taskRecyclerView = findViewById(R.id.taskRecyclerView);
@@ -110,6 +127,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Initialize notification channel
         createNotificationChannel();
     }
+
+    private void initializeParticleSystem() {
+        // Create and configure the ParticleSystem
+        particleSystem = new ParticleSystem();
+
+        // Set some additional properties if needed
+        particleSystem.setSpeed(10f);
+        particleSystem.setMaxSpeed(20f);
+        particleSystem.setSpread(180);
+        particleSystem.setColors(new int[]{0xfce18a, 0xff726d, 0xf4306d, 0xb48def});
+
+        // Assign the ViewKonfetti instance to the particle system
+        // This could be done through a setter or directly in the start method depending on how you design your classes
+        particleSystem.setViewKonfetti(viewKonfetti);
+    }
+
 
     //Create Notification Chanel
     private void createNotificationChannel() {
@@ -268,4 +301,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
     }
+
+
 }

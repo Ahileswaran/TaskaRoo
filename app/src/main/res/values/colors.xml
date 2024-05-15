@@ -16,6 +16,11 @@
     <color name="date_background_color">#E0E0E0</color> <!-- Light Gray -->
     <color name="time_background_color">#E0E0E0</color> <!-- Light Gray -->
 
+    <color name="konfetti_color1">#FF0000</color>
+    <color name="konfetti_color2">#00FF00</color>
+    <color name="konfetti_color3">#0000FF</color>
+    <color name="konfetti_color4">#FFFF00</color>
+
     <color name="colorPrimary">#3F51B5</color> <!-- color value -->
 </resources>
 
