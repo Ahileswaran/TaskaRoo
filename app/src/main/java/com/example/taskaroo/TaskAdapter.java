@@ -93,13 +93,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             context = itemView.getContext();
 
+            // Create GestureDetector
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDown(MotionEvent e) {
+                    return true;
+                }
+
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     editTask();
                     return true;
                 }
             });
+
+            // Set touch listener for itemView to detect gestures
+            itemView.setOnTouchListener((v, event) -> {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            });
+
 
             itemView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 

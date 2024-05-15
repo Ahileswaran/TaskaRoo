@@ -74,6 +74,7 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask = databaseHelper.getTaskById(taskId);
             fillTaskData(currentTask);
         }
+
     }
 
     //For select date
