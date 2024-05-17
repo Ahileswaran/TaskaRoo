@@ -1,5 +1,6 @@
 package com.example.taskaroo;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Task> taskList;
     private AlertDialog deleteConfirmationDialog;
     private DrawerLayout drawerLayout;
+    private LottieAnimationView animationView;
 
 
     @SuppressLint("MissingInflatedId")
@@ -65,9 +69,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
         });
 
-        // Initialize RecyclerView
+        // Initialize RecyclerView and TaskAdapter with context
         taskList = new ArrayList<>();
-        taskAdapter = new TaskAdapter();
+        taskAdapter = new TaskAdapter(this);  // Pass 'this' as the context to the adapter
         taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         taskRecyclerView.setAdapter(taskAdapter);
 
@@ -229,7 +233,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         displayTasks();
     }
 
+    // Method to play the Lottie animation
+    public void playCompletionAnimation() {
+        animationView.setVisibility(View.VISIBLE);
+        animationView.setAnimation("animation.json");
+        animationView.playAnimation();
+        animationView.addAnimatorListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
 
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                animationView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+    }
 
     private void deleteTask(int taskId) {
         databaseHelper.deleteTask(taskId);
@@ -272,6 +296,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
     }
-
 
 }

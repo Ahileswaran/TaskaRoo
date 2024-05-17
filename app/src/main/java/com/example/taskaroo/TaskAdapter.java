@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -27,9 +29,15 @@ import java.util.Locale;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     private List<Task> tasks;
     private OnTaskClickListener listener;
+    private Context context;
 
-    public TaskAdapter() {
+
+
+    public TaskAdapter(Context context) {
+        this.context = context;
+        this.tasks = new ArrayList<>();
     }
+
 
     public interface OnTaskClickListener {
         void onTaskClick(Task task);
@@ -63,19 +71,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private Context context;
         private TextView textViewTaskName;
         private TextView textViewDescription;
         private TextView textViewDate;
         private TextView textViewTime;
-        private ImageView imageButtonOverdue; // ImageView for the Overdue icon
-        private ImageView imageButtonPending; // ImageView for the pending icon
+        private ImageView imageButtonOverdue;
+        private ImageView imageButtonPending;
         private ImageView imageButtonCheck;
         private TextView textViewNotification;
-        private TextView getTextViewNotification;
         private View completeButton;
-        private ProgressBar progressBar; // Progress bar for task progress
-
+        private ProgressBar progressBar;
         private GestureDetector gestureDetector;
 
         public ViewHolder(@NonNull View itemView) {
@@ -89,12 +94,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck);
             textViewNotification = itemView.findViewById(R.id.textViewNotification);
             completeButton = itemView.findViewById(R.id.completeButton);
-            progressBar = itemView.findViewById(R.id.progressBar); // Initialize progress bar
+            progressBar = itemView.findViewById(R.id.progressBar);
 
-            context = itemView.getContext();
-
-            // Create GestureDetector
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDown(MotionEvent e) {
                     return true;
@@ -107,14 +109,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 }
             });
 
-            // Set touch listener for itemView to detect gestures
             itemView.setOnTouchListener((v, event) -> {
                 gestureDetector.onTouchEvent(event);
                 return true;
             });
-
-
-            itemView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 
             itemView.setOnClickListener(v -> {
                 Task task = tasks.get(getAdapterPosition());
@@ -137,7 +135,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     Task task = tasks.get(position);
-
                     task.setCompleted(true);
                     task.setTimestamp(getDateTime());
 
@@ -153,9 +150,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                         if (completeMessage != null) {
                             Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
                         }
+
+                        // Ensure the context is correctly cast and call the method
+                        if (context instanceof MainActivity) {
+                            Log.d("CompletionAnimation", "Calling playCompletionAnimation");
+                            ((MainActivity) context).playCompletionAnimation();
+                        } else {
+                            Log.d("CompletionAnimation", "Context is not instance of MainActivity: " + context.toString());
+                        }
                     }
                 }
             });
+
         }
 
         public void bind(Task task) {
@@ -169,12 +175,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 completeButton.setVisibility(View.GONE);
             } else {
                 Calendar now = Calendar.getInstance();
-
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                     Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
                     long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
-
                     if (diffInMilliseconds < 0 || dueDate.equals(now.getTime())) {
                         completeButton.setVisibility(View.VISIBLE);
                     } else {
@@ -183,17 +187,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-
             }
-            Calendar now = Calendar.getInstance();
 
+            Calendar now = Calendar.getInstance();
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
                 long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
                 int progress = calculateProgress(diffInMilliseconds);
                 setProgressBarColor(progress);
-
                 progressBar.setProgress(progress);
 
                 if (task.isCompleted()) {
@@ -201,7 +203,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     imageButtonPending.setVisibility(View.GONE);
                     imageButtonCheck.setVisibility(View.VISIBLE);
                 } else {
-
                     if (diffInMilliseconds < 0) {
                         imageButtonOverdue.setVisibility(View.VISIBLE);
                         imageButtonPending.setVisibility(View.GONE);
@@ -210,7 +211,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                         imageButtonOverdue.setVisibility(View.GONE);
                         imageButtonPending.setVisibility(View.VISIBLE);
                         imageButtonCheck.setVisibility(View.GONE);
-
                     }
                 }
             } catch (ParseException e) {

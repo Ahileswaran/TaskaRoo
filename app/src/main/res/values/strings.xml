@@ -2,5 +2,5 @@
     <string name="taskaroo">TaskaRoo</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <!-- Add other string resources as needed -->
+    <string name="add_task">Add Task</string>
 </resources>
