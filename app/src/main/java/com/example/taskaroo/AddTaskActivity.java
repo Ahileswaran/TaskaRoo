@@ -199,7 +199,8 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextTime.setText("");
         editTextReminder.setText("");
     }
-    //Field tasks
+
+    //Filled tasks
     @SuppressLint("WrongViewCast")
     private void fillTaskData(Task task) {
         if (task != null) {

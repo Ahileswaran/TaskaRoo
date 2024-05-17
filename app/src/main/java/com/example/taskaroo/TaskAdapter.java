@@ -254,19 +254,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         //Edit Task
         private void editTask() {
             int position = getBindingAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
+            if (position != RecyclerView.NO_POSITION && listener != null) {
                 Task task = tasks.get(position);
-                Intent intent = new Intent(context, AddTaskActivity.class);
-                intent.putExtra("task_id", task.getId());
-                intent.putExtra("task_name", task.getName());
-                intent.putExtra("task_description", task.getDescription());
-                intent.putExtra("task_date", task.getDate());
-                intent.putExtra("task_time", task.getTime());
-                intent.putExtra("task_notification", task.getNumberOfNotifications());
-                context.startActivity(intent);
-                if (listener != null) {
-                    listener.onTaskClick(task);
-                }
+                listener.onTaskClick(task);
             }
         }
 
