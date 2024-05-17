@@ -1,6 +1,7 @@
 package com.example.taskaroo;
 
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -38,6 +39,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         void onTaskClick(Task task);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
         notifyDataSetChanged();
@@ -66,21 +68,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private Context context;
-        private TextView textViewTaskName;
-        private TextView textViewDescription;
-        private TextView textViewDate;
-        private TextView textViewTime;
-        private ImageView imageButtonOverdue;
-        private ImageView imageButtonPending;
-        private ImageView imageButtonCheck;
-        private TextView textViewNotification;
-        private View completeButton;
-        private ProgressBar progressBar;
-        private LottieAnimationView animationView;
+        private final Context context;
+        private final TextView textViewTaskName;
+        private final TextView textViewDescription;
+        private final TextView textViewDate;
+        private final TextView textViewTime;
+        private final ImageView imageButtonOverdue;
+        private final ImageView imageButtonPending;
+        private final ImageView imageButtonCheck;
+        private final TextView textViewNotification;
+        private final View completeButton;
+        private final ProgressBar progressBar;
+        private final LottieAnimationView animationView;
 
-        private GestureDetector gestureDetector;
+        private final GestureDetector gestureDetector;
 
+        @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTaskName = itemView.findViewById(R.id.textViewTaskName);
@@ -99,12 +102,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
-                public boolean onDown(MotionEvent e) {
+                public boolean onDown(@NonNull MotionEvent e) {
                     return true;
                 }
 
                 @Override
-                public boolean onDoubleTap(MotionEvent e) {
+                public boolean onDoubleTap(@NonNull MotionEvent e) {
                     editTask();
                     return true;
                 }
@@ -116,43 +119,47 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             });
 
             itemView.setOnClickListener(v -> {
-                Task task = tasks.get(getAdapterPosition());
-                Intent intent = new Intent(context, AddTaskActivity.class);
-                intent.putExtra("task_id", task.getId());
-                intent.putExtra("task_name", task.getName());
-                intent.putExtra("task_description", task.getDescription());
-                intent.putExtra("task_date", task.getDate());
-                intent.putExtra("task_time", task.getTime());
-                intent.putExtra("task_notification", task.getNumberOfNotifications());
-                context.startActivity(intent);
-                int position = getAdapterPosition();
-                if (listener != null && position != RecyclerView.NO_POSITION) {
-                    task = tasks.get(position);
-                    listener.onTaskClick(task);
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    Task task = tasks.get(position);
+                    Intent intent = new Intent(context, AddTaskActivity.class);
+                    intent.putExtra("task_id", task.getId());
+                    intent.putExtra("task_name", task.getName());
+                    intent.putExtra("task_description", task.getDescription());
+                    intent.putExtra("task_date", task.getDate());
+                    intent.putExtra("task_time", task.getTime());
+                    intent.putExtra("task_notification", task.getNumberOfNotifications());
+                    context.startActivity(intent);
+                    if (listener != null) {
+                        listener.onTaskClick(task);
+                    }
                 }
             });
 
             completeButton.setOnClickListener(v -> {
-                int position = getAdapterPosition();
+                int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     Task task = tasks.get(position);
 
                     task.setCompleted(true);
                     task.setTimestamp(getDateTime());
 
-                    DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext());
-                    int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
+                    try (DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext())) {
+                        int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
 
-                    if (isUpdated == 0) {
-                        Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
-                    } else {
-                        completeButton.setVisibility(View.GONE);
-                        notifyItemChanged(position);
-                        playCompletionAnimation();
-                        String completeMessage = dbHelper.getCompleteMessage(task.getId());
-                        if (completeMessage != null) {
-                            Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
+                        if (isUpdated == 0) {
+                            Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
+                        } else {
+                            completeButton.setVisibility(View.GONE);
+                            notifyItemChanged(position);
+                            playCompletionAnimation();
+                            String completeMessage = dbHelper.getCompleteMessage(task.getId());
+                            if (completeMessage != null) {
+                                Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -173,12 +180,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                     Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-                    long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+                    long diffInMilliseconds = 0;
+                    if (dueDate != null) {
+                        diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+                    }
 
-                    if (diffInMilliseconds < 0 || dueDate.equals(now.getTime())) {
+                    if (dueDate != null && (diffInMilliseconds < 0 || dueDate.equals(now.getTime()))) {
                         completeButton.setVisibility(View.VISIBLE);
-                    } else {
-                        completeButton.setVisibility(View.GONE);
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -190,7 +198,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
-                long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+                long diffInMilliseconds = 0;
+                if (dueDate != null) {
+                    diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+                }
                 int progress = calculateProgress(diffInMilliseconds);
                 setProgressBarColor(progress);
 
@@ -216,6 +227,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        //Calculation for the progress bar
         private int calculateProgress(long diffInMilliseconds) {
             long highThreshold = 24 * 60 * 60 * 1000;
             long mediumThreshold = 3 * 24 * 60 * 60 * 1000;
@@ -230,30 +242,31 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        //Progress bar color
         private void setProgressBarColor(int progress) {
             if (progress >= 75) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
             } else if (progress >= 50) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
-            } else {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
-            }
+            } else progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
         }
 
+        //Edit Task
         private void editTask() {
-            Task task = tasks.get(getAdapterPosition());
-            Intent intent = new Intent(context, AddTaskActivity.class);
-            intent.putExtra("task_id", task.getId());
-            intent.putExtra("task_name", task.getName());
-            intent.putExtra("task_description", task.getDescription());
-            intent.putExtra("task_date", task.getDate());
-            intent.putExtra("task_time", task.getTime());
-            intent.putExtra("task_notification", task.getNumberOfNotifications());
-            context.startActivity(intent);
-            int position = getAdapterPosition();
-            if (listener != null && position != RecyclerView.NO_POSITION) {
-                task = tasks.get(position);
-                listener.onTaskClick(task);
+            int position = getBindingAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Task task = tasks.get(position);
+                Intent intent = new Intent(context, AddTaskActivity.class);
+                intent.putExtra("task_id", task.getId());
+                intent.putExtra("task_name", task.getName());
+                intent.putExtra("task_description", task.getDescription());
+                intent.putExtra("task_date", task.getDate());
+                intent.putExtra("task_time", task.getTime());
+                intent.putExtra("task_notification", task.getNumberOfNotifications());
+                context.startActivity(intent);
+                if (listener != null) {
+                    listener.onTaskClick(task);
+                }
             }
         }
 
@@ -265,28 +278,27 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             animationView.playAnimation();
             animationView.addAnimatorListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                     // Animation started
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     // Animation ended, hide the animation view
                     animationView.setVisibility(View.GONE);
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {
+                public void onAnimationCancel(@NonNull Animator animation) {
                     // Animation cancelled
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {
+                public void onAnimationRepeat(@NonNull Animator animation) {
                     // Animation repeated
                 }
             });
         }
-
 
         private String getDateTime() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -294,3 +306,4 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         }
     }
 }
+
