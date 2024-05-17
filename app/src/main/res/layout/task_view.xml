@@ -57,8 +57,6 @@
                     tools:ignore="UseCompoundDrawables">
 
                     <!-- Date Icon -->
-
-                    <!-- Date Value -->
                     <ImageView
                         android:id="@+id/imageViewDateIcon"
                         android:layout_width="20dp"
@@ -66,6 +64,7 @@
                         android:minHeight="30dp"
                         android:src="@drawable/ic_date" />
 
+                    <!-- Date Value -->
                     <TextView
                         android:id="@+id/textViewDate"
                         android:layout_width="wrap_content"
@@ -212,16 +211,24 @@
 
     </LinearLayout>
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <!-- Lottie AnimationView for displaying animations -->
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animation_view"
-        android:layout_width="@dimen/animation_view_size"
-        android:layout_height="@dimen/animation_view_size"
-        app:lottie_fileName="animation.json"
+        android:layout_width="match_parent"
+        android:layout_height="286dp"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_fileName="animation.json" />
+</LinearLayout>
+
+
+
 
 </androidx.cardview.widget.CardView>

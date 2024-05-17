@@ -1,5 +1,6 @@
 package com.example.taskaroo;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -256,11 +257,36 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        //Play the Lottie animation when complete (Done ?) button clicked
+
         private void playCompletionAnimation() {
             animationView.setVisibility(View.VISIBLE);
             animationView.setAnimation("animation.json");
             animationView.playAnimation();
+            animationView.addAnimatorListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    // Animation started
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    // Animation ended, hide the animation view
+                    animationView.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    // Animation cancelled
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                    // Animation repeated
+                }
+            });
         }
+
 
         private String getDateTime() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

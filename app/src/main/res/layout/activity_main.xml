@@ -33,7 +33,6 @@
             android:contentDescription="@string/add_task" />
 
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- NavigationView for the drawer -->
