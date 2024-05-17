@@ -5,9 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -27,15 +25,12 @@ import com.google.android.material.navigation.NavigationView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView taskRecyclerView;
     private TaskAdapter taskAdapter;
     private DatabaseHelper databaseHelper;
     private List<Task> taskList;
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         // Initialize views
-        taskRecyclerView = findViewById(R.id.taskRecyclerView);
+        RecyclerView taskRecyclerView = findViewById(R.id.taskRecyclerView);
         FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
 
         // Initialize database helper
@@ -90,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getBindingAdapterPosition();
                 Task removedTask = taskList.get(position);
                 taskList.remove(position);
                 taskAdapter.notifyItemRemoved(position);
@@ -117,17 +112,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Create Notification Chanel
     private void createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            CharSequence name = "Taskaroo Channel";
-            String description = "Channel for Taskaroo notifications";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("taskaroo_channel", name, importance);
-            channel.setDescription(description);
+        CharSequence name = "Taskaroo Channel";
+        String description = "Channel for Taskaroo notifications";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel("taskaroo_channel", name, importance);
+        channel.setDescription(description);
 
-            // Register the channel with the system
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        // Register the channel with the system
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
     }
 
     @Override
@@ -137,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //Method to display task
+    @SuppressLint("NotifyDataSetChanged")
     private void displayTasks() {
         taskList.clear();
         taskList.addAll(databaseHelper.getAllTasks());
@@ -152,21 +146,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // Sort tasks based on due date
-        Collections.sort(taskList, new Comparator<Task>() {
-            @Override
-            public int compare(Task task1, Task task2) {
-                // Parse due dates of tasks
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                try {
-                    Date dueDate1 = sdf.parse(task1.getDate());
-                    Date dueDate2 = sdf.parse(task2.getDate());
-                    // Compare due dates
+        taskList.sort((task1, task2) -> {
+            // Parse due dates of tasks
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            try {
+                Date dueDate1 = sdf.parse(task1.getDate());
+                Date dueDate2 = sdf.parse(task2.getDate());
+                // Compare due dates
+                if (dueDate1 != null) {
                     return dueDate1.compareTo(dueDate2);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    return 0;
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return 0;
             }
+            return 0;
         });
 
         taskAdapter.setTasks(taskList);
@@ -227,33 +221,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void deleteTask(Task task) {
         databaseHelper.deleteTask(task.getId());
         displayTasks();
-    }
-
-
-
-    private void deleteTask(int taskId) {
-        databaseHelper.deleteTask(taskId);
-        displayTasks();
-    }
-
-    private void showNotificationPermissionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Notification Permission Required")
-                .setMessage("To enable notifications, please grant the notification permission in the app settings.")
-                .setPositiveButton("Go to Settings", (dialog, which) -> {
-                    navigateToAppSettings();
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
-    }
-
-    private void navigateToAppSettings() {
-        Intent intent = new Intent();
-        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivity(intent);
     }
 
     //Select theme dark or light
