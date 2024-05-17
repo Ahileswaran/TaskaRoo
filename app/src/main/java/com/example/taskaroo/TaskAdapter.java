@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,9 +17,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,15 +29,9 @@ import java.util.Locale;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     private List<Task> tasks;
     private OnTaskClickListener listener;
-    private Context context;
 
-
-
-    public TaskAdapter(Context context) {
-        this.context = context;
-        this.tasks = new ArrayList<>();
+    public TaskAdapter() {
     }
-
 
     public interface OnTaskClickListener {
         void onTaskClick(Task task);
@@ -71,6 +65,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private Context context;
         private TextView textViewTaskName;
         private TextView textViewDescription;
         private TextView textViewDate;
@@ -81,6 +76,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private TextView textViewNotification;
         private View completeButton;
         private ProgressBar progressBar;
+        private LottieAnimationView animationView;
+
         private GestureDetector gestureDetector;
 
         public ViewHolder(@NonNull View itemView) {
@@ -95,8 +92,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewNotification = itemView.findViewById(R.id.textViewNotification);
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar);
+            animationView = itemView.findViewById(R.id.animation_view);
 
-            gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            context = itemView.getContext();
+
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDown(MotionEvent e) {
                     return true;
@@ -135,6 +135,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     Task task = tasks.get(position);
+
                     task.setCompleted(true);
                     task.setTimestamp(getDateTime());
 
@@ -146,22 +147,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     } else {
                         completeButton.setVisibility(View.GONE);
                         notifyItemChanged(position);
+                        playCompletionAnimation();
                         String completeMessage = dbHelper.getCompleteMessage(task.getId());
                         if (completeMessage != null) {
                             Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
                         }
-
-                        // Ensure the context is correctly cast and call the method
-                        if (context instanceof MainActivity) {
-                            Log.d("CompletionAnimation", "Calling playCompletionAnimation");
-                            ((MainActivity) context).playCompletionAnimation();
-                        } else {
-                            Log.d("CompletionAnimation", "Context is not instance of MainActivity: " + context.toString());
-                        }
                     }
                 }
             });
-
         }
 
         public void bind(Task task) {
@@ -175,10 +168,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 completeButton.setVisibility(View.GONE);
             } else {
                 Calendar now = Calendar.getInstance();
+
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                     Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
                     long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
+
                     if (diffInMilliseconds < 0 || dueDate.equals(now.getTime())) {
                         completeButton.setVisibility(View.VISIBLE);
                     } else {
@@ -190,12 +185,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
 
             Calendar now = Calendar.getInstance();
+
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date dueDate = sdf.parse(task.getDate() + " " + task.getTime());
                 long diffInMilliseconds = dueDate.getTime() - now.getTimeInMillis();
                 int progress = calculateProgress(diffInMilliseconds);
                 setProgressBarColor(progress);
+
                 progressBar.setProgress(progress);
 
                 if (task.isCompleted()) {
@@ -258,10 +255,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 listener.onTaskClick(task);
             }
         }
-    }
 
-    private String getDateTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return sdf.format(new Date());
+        private void playCompletionAnimation() {
+            animationView.setVisibility(View.VISIBLE);
+            animationView.setAnimation("animation.json");
+            animationView.playAnimation();
+        }
+
+        private String getDateTime() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            return sdf.format(new Date());
+        }
     }
 }

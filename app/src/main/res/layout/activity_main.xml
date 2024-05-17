@@ -32,17 +32,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:contentDescription="@string/add_task" />
 
-        <!-- Lottie AnimationView for displaying animations -->
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/animation_view"
-            android:layout_width="@dimen/animation_view_size"
-            android:layout_height="@dimen/animation_view_size"
-            app:lottie_rawRes="@raw/animation"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
