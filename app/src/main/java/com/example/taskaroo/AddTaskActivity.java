@@ -8,7 +8,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -27,22 +26,15 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText editTextDescription;
     private EditText editTextDate;
     private EditText editTextTime;
-
     private EditText editTextReminder;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
-    private EditText editTextReminders;
     private DatabaseHelper databaseHelper;
     private Task currentTask;
-    private int completed;
-    private View editTextNumberOfNotifications;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_task_activity);
 
@@ -50,9 +42,7 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextDescription = findViewById(R.id.editTextDescription);
         editTextDate = findViewById(R.id.editTextDate);
         editTextTime = findViewById(R.id.editTextTime);
-
         editTextReminder = findViewById(R.id.editTextReminder);
-
         buttonSave = findViewById(R.id.buttonSaveTask);
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonReset = findViewById(R.id.buttonReset);
@@ -74,10 +64,9 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask = databaseHelper.getTaskById(taskId);
             fillTaskData(currentTask);
         }
-
     }
 
-    //For select date
+    // For selecting date
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -92,7 +81,7 @@ public class AddTaskActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    //For select time
+    // For selecting time
     private void showTimePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -106,74 +95,68 @@ public class AddTaskActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    //Save Task
+    // Save Task
     private void saveTask() {
-        String taskName = editTextTaskName.getText().toString().trim();
-        String description = editTextDescription.getText().toString().trim();
-        String date = editTextDate.getText().toString().trim();
-        String time = editTextTime.getText().toString().trim();
-        int numberOfNotifications = Integer.parseInt(editTextReminder.getText().toString().trim());
+        try {
+            String taskName = editTextTaskName.getText().toString().trim();
+            String description = editTextDescription.getText().toString().trim();
+            String date = editTextDate.getText().toString().trim();
+            String time = editTextTime.getText().toString().trim();
+            String reminderText = editTextReminder.getText().toString().trim();
 
+            if (taskName.isEmpty() || date.isEmpty() || time.isEmpty() || reminderText.isEmpty()) {
+                throw new IllegalArgumentException("Task name, date, time, and reminders are required fields");
+            }
 
-        if (taskName.isEmpty() || date.isEmpty() || time.isEmpty()) {
-            Toast.makeText(this, "Task name, date, and time are required fields", Toast.LENGTH_SHORT).show();
-            return;
+            int numberOfNotifications = Integer.parseInt(reminderText);
+
+            if (currentTask != null) {
+                // Update existing task
+                currentTask.setName(taskName);
+                currentTask.setDescription(description);
+                currentTask.setDate(date);
+                currentTask.setTime(time);
+                currentTask.setNumberOfNotifications(numberOfNotifications);
+
+                databaseHelper.updateTask(currentTask);
+            } else {
+                // Add new task
+                databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, 0);
+                currentTask = databaseHelper.getLastAddedTask();
+            }
+
+            if (!date.isEmpty() && !time.isEmpty()) {
+                scheduleNotification(taskName, description, date, time, numberOfNotifications);
+            }
+
+            Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
+            finish();
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "An error occurred while saving the task", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
-
-        if (currentTask != null) {
-            // Update existing task
-            currentTask.setName(taskName);
-            currentTask.setDescription(description);
-            currentTask.setDate(date);
-            currentTask.setTime(time);
-            currentTask.setNumberOfNotifications(numberOfNotifications);
-
-            // Update task with the new numberOfNotifications directly
-            databaseHelper.updateTask(currentTask);
-
-        } else {
-            // Add new task
-            long result = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, completed);
-
-            // Retrieve the newly added task from the database
-            currentTask = databaseHelper.getLastAddedTask();
-        }
-
-        if (!date.isEmpty() && !time.isEmpty()) {
-            scheduleNotification(taskName, description, date, time, numberOfNotifications);
-        }
-
-        Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
-        finish();
-
     }
 
-    //Schedule Notification for the task
+    // Schedule Notification for the task
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
-        // Set the first notification displayed flag for the task
-
         try {
-            // Combine date and time strings and parse into Date object
             String dateTimeString = date + " " + time;
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             Date dateTime = sdf.parse(dateTimeString);
 
-            // Create Calendar object and set the time
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateTime);
 
-            // Get AlarmManager service
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-            // Create intent for the notification
             Intent notificationIntent = new Intent(this, NotificationReceiver.class);
             notificationIntent.putExtra("task_name", taskName);
             notificationIntent.putExtra("description", description);
 
-            // Create multiple pending intents for each notification
             for (int i = 0; i < numberOfNotifications; i++) {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                // Schedule the notification
                 if (alarmManager != null) {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + (i * AlarmManager.INTERVAL_HOUR), pendingIntent);
                 }
@@ -181,17 +164,14 @@ public class AddTaskActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
     }
 
-    //Cancel button method
+    // Cancel button method
     private void cancelTask() {
-        // Implement cancel task functionality
-        // You can show a confirmation dialog here
         finish();
     }
 
-    //Reset field method
+    // Reset field method
     private void resetFields() {
         editTextTaskName.setText("");
         editTextDescription.setText("");
@@ -200,7 +180,7 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextReminder.setText("");
     }
 
-    //Filled tasks
+    // Fill tasks
     @SuppressLint("WrongViewCast")
     private void fillTaskData(Task task) {
         if (task != null) {
@@ -211,6 +191,4 @@ public class AddTaskActivity extends AppCompatActivity {
             editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
         }
     }
-
-
 }

@@ -278,6 +278,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     animationView.setVisibility(View.GONE);
                 }
 
+
                 @Override
                 public void onAnimationCancel(@NonNull Animator animation) {
                     // Animation cancelled
