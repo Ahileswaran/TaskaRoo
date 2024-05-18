@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +26,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_NUMBER_OF_NOTIFICATIONS = "number_of_notifications";
     public static final String COL_COMPLETED = "completed";
     private static final String COL_TIMESTAMP = "timestamp";
+    public static final String COL_MAP_INFO = "map_info";
+    public static final String COL_CAMERA_INFO = "camera_info";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -49,6 +52,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TIME + " TEXT, " +
                 COL_NUMBER_OF_NOTIFICATIONS + " INTEGER, " +
                 COL_COMPLETED + " INTEGER, " +
+                COL_MAP_INFO + " BLOB, " +
+                COL_CAMERA_INFO + " BLOB, " +
                 COL_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
                 ")";
         db.execSQL(createTable);
@@ -61,7 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //Adding the task
-    public long addTask(String taskName, String description, String date, String time, int numberOfNotifications, int completed) {
+    public long addTask(String taskName, String description, String date, String time, int numberOfNotifications,
+                        int completed, byte[] mapInfo, byte[] cameraInfo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_TASK_NAME, taskName);
@@ -70,6 +76,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_TIME, time);
         values.put(COL_NUMBER_OF_NOTIFICATIONS, numberOfNotifications);
         values.put(COL_COMPLETED, completed);
+        values.put(COL_MAP_INFO, mapInfo);
+        values.put(COL_CAMERA_INFO, cameraInfo);
         return db.insert(TABLE_NAME, null, values);
     }
 
@@ -89,6 +97,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
                 task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
                 task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
+                task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
+                task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
                 taskList.add(task);
             } while (cursor.moveToNext());
         }
@@ -106,6 +116,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_TIME, task.getTime());
         values.put(COL_NUMBER_OF_NOTIFICATIONS, task.getNumberOfNotifications());
         values.put(COL_COMPLETED, task.isCompleted() ? 1 : 0);
+        values.put(COL_MAP_INFO, task.getMapInfo());
+        values.put(COL_CAMERA_INFO, task.getCameraInfo());
         values.put(COL_TIMESTAMP, getDateTime());
         return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
     }
@@ -138,6 +150,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
             task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
             task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
+            task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
+            task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
             cursor.close();
         }
         return task;
@@ -217,9 +231,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
             task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
             task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
+            task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
+            task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
             cursor.close();
         }
         return task;
     }
 
+    public void addTask(String taskName, String description, String date, String time, int numberOfNotifications, int i) {
+    }
 }
+

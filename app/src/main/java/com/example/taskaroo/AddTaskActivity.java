@@ -1,19 +1,26 @@
 package com.example.taskaroo;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,8 +37,17 @@ public class AddTaskActivity extends AppCompatActivity {
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
+
+    private Button buttonCamera;
+    private Button buttonMap;
     private DatabaseHelper databaseHelper;
     private Task currentTask;
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_MAP_LOCATION = 2;
+
+    private byte[] cameraImage;
+    private byte[] mapInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +63,29 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonReset = findViewById(R.id.buttonReset);
 
+        buttonCamera = findViewById(R.id.buttonCamera);
+        buttonMap = findViewById(R.id.buttonMap);
+
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
 
         buttonSave.setOnClickListener(v -> saveTask());
         buttonCancel.setOnClickListener(v -> cancelTask());
         buttonReset.setOnClickListener(v -> resetFields());
+
+        buttonCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
+            }
+        });
+
+        buttonMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectMapLocation();
+            }
+        });
 
         // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
@@ -64,6 +97,48 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask = databaseHelper.getTaskById(taskId);
             fillTaskData(currentTask);
         }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    private void selectMapLocation() {
+        Intent mapIntent = new Intent(this, MapsActivity.class);
+        startActivityForResult(mapIntent, REQUEST_MAP_LOCATION);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            cameraImage = getBitmapAsByteArray(imageBitmap);
+        }
+        if (requestCode == REQUEST_MAP_LOCATION && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                double lat = data.getDoubleExtra("selected_lat", 0);
+                double lng = data.getDoubleExtra("selected_lng", 0);
+                mapInfo = getMapInfoAsByteArray(lat, lng);
+            }
+        }
+    }
+
+    private byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    private byte[] getMapInfoAsByteArray(double lat, double lng) {
+        ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES * 2);
+        buffer.putDouble(lat);
+        buffer.putDouble(lng);
+        return buffer.array();
     }
 
     // For selecting date
@@ -117,12 +192,14 @@ public class AddTaskActivity extends AppCompatActivity {
                 currentTask.setDate(date);
                 currentTask.setTime(time);
                 currentTask.setNumberOfNotifications(numberOfNotifications);
+                currentTask.setMapInfo(mapInfo);
+                currentTask.setCameraInfo(cameraImage);
 
                 databaseHelper.updateTask(currentTask);
             } else {
                 // Add new task
-                databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, 0);
-                currentTask = databaseHelper.getLastAddedTask();
+                long taskId = databaseHelper.addTask(taskName, description, date, time, numberOfNotifications, 0, mapInfo, cameraImage);
+                currentTask = databaseHelper.getTaskById((int) taskId);
             }
 
             if (!date.isEmpty() && !time.isEmpty()) {
@@ -166,12 +243,12 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
-    // Cancel button method
+    // Cancel Task
     private void cancelTask() {
         finish();
     }
 
-    // Reset field method
+    // Reset fields
     private void resetFields() {
         editTextTaskName.setText("");
         editTextDescription.setText("");
@@ -180,15 +257,12 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextReminder.setText("");
     }
 
-    // Fill tasks
-    @SuppressLint("WrongViewCast")
+    // Fill task data
     private void fillTaskData(Task task) {
-        if (task != null) {
-            editTextTaskName.setText(task.getName());
-            editTextDescription.setText(task.getDescription());
-            editTextDate.setText(task.getDate());
-            editTextTime.setText(task.getTime());
-            editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
-        }
+        editTextTaskName.setText(task.getName());
+        editTextDescription.setText(task.getDescription());
+        editTextDate.setText(task.getDate());
+        editTextTime.setText(task.getTime());
+        editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
     }
 }

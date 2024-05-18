@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -80,6 +81,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private final View completeButton;
         private final ProgressBar progressBar;
         private final LottieAnimationView animationView;
+        private final ImageView imageViewCamera;
+        private final ImageView imageViewMap;
 
         private final GestureDetector gestureDetector;
 
@@ -97,6 +100,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar);
             animationView = itemView.findViewById(R.id.animation_view);
+            imageViewCamera = itemView.findViewById(R.id.imageViewCamera);
+            imageViewMap = itemView.findViewById(R.id.imageViewMap);
 
             context = itemView.getContext();
 
@@ -129,6 +134,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     intent.putExtra("task_date", task.getDate());
                     intent.putExtra("task_time", task.getTime());
                     intent.putExtra("task_notification", task.getNumberOfNotifications());
+                    // Add extras for camera image and map info
+                    intent.putExtra("task_camera_image", task.getCameraImage());
+                    intent.putExtra("task_map_info", task.getMapInfo());
                     context.startActivity(intent);
                     if (listener != null) {
                         listener.onTaskClick(task);
@@ -171,6 +179,21 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewDate.setText(task.getDate());
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
+
+            if (task.getCameraImage() != null && task.getCameraImage().length > 0) {
+                imageViewCamera.setVisibility(View.VISIBLE);
+                imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraImage(), 0, task.getCameraImage().length));
+            } else {
+                imageViewCamera.setVisibility(View.GONE);
+            }
+
+            if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
+                imageViewMap.setVisibility(View.VISIBLE);
+                // Assume you have a method to display the map info, for example:
+                // imageViewMap.setImageBitmap(getMapBitmap(task.getMapInfo()));
+            } else {
+                imageViewMap.setVisibility(View.GONE);
+            }
 
             if (task.isCompleted()) {
                 completeButton.setVisibility(View.GONE);
@@ -227,7 +250,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
-        //Calculation for the progress bar
         private int calculateProgress(long diffInMilliseconds) {
             long highThreshold = 24 * 60 * 60 * 1000;
             long mediumThreshold = 3 * 24 * 60 * 60 * 1000;
@@ -242,7 +264,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
-        //Progress bar color
         private void setProgressBarColor(int progress) {
             if (progress >= 75) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
@@ -251,7 +272,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             } else progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
         }
 
-        //Edit Task
         private void editTask() {
             int position = getBindingAdapterPosition();
             if (position != RecyclerView.NO_POSITION && listener != null) {
@@ -259,8 +279,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 listener.onTaskClick(task);
             }
         }
-
-        //Play the Lottie animation when complete (Done ?) button clicked
 
         private void playCompletionAnimation() {
             animationView.setVisibility(View.VISIBLE);
@@ -296,4 +314,3 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         }
     }
 }
-

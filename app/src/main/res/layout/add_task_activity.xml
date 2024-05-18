@@ -9,9 +9,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="682dp"
+        android:layout_height="698dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="51dp"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -29,21 +32,59 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Description TextInputLayout -->
+        <!-- Description TextInputLayout with Map and Camera Icons -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextDescription"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:inputType="textMultiLine"
-                android:maxLines="5"
-                android:gravity="top|start"/>
+                android:layout_height="200dp">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:maxLines="5"
+                    android:paddingEnd="80dp"
+                    android:paddingBottom="40dp" />
+
+                <!-- Map Button -->
+                <ImageButton
+                    android:id="@+id/buttonMap"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginEnd="48dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Map"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_map"
+                    android:tint="@color/colorPrimary" />
+
+                <!-- Camera Button -->
+                <ImageButton
+                    android:id="@+id/buttonCamera"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Camera"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_camera"
+                    android:tint="@color/colorPrimary" />
+
+            </RelativeLayout>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Due Date TextInputLayout -->
@@ -84,22 +125,19 @@
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
-            <!--Set Reminder TextInputLayout-->
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Set Reminder" >
+        <!-- Set Reminder TextInputLayout -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Set Reminder">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextReminder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number" />
-
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <!-- Buttons LinearLayout -->
         <LinearLayout
@@ -135,7 +173,6 @@
                 android:text="Reset" />
 
         </LinearLayout>
-
 
     </LinearLayout>
 

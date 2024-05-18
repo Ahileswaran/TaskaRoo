@@ -8,9 +8,10 @@ public class Task {
     private String time;
     private boolean completed;
     private String timestamp;
-
     private int numberOfNotifications;
-
+    private byte[] cameraImage;
+    private byte[] mapInfo;
+    private byte[] cameraInfo;
 
     // Constructor
     public Task() {
@@ -80,5 +81,28 @@ public class Task {
 
     public void setNumberOfNotifications(int numberOfNotifications) {
         this.numberOfNotifications = numberOfNotifications;
+    }
+
+    public byte[] getCameraImage() {
+        return cameraImage;
+    }
+
+    public void setCameraImage(byte[] cameraImage) {
+        this.cameraImage = cameraImage;
+    }
+
+    public byte[] getMapInfo() {
+        return mapInfo;
+    }
+
+    public void setMapInfo(byte[] mapInfo) {
+        this.mapInfo = mapInfo;
+    }
+
+    public void setCameraInfo(byte[] cameraImage) {
+    }
+
+    public byte[] getCameraInfo() {
+        return cameraInfo;
     }
 }
