@@ -88,16 +88,11 @@ public class AddTaskActivity extends AppCompatActivity {
         });
 
         buttonMap.setOnClickListener(v -> {
-            checkLocationPermission();
-        });
-
-
-        buttonMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            if (checkLocationPermission()) {
                 selectMapLocation();
             }
         });
+
 
         // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
@@ -255,7 +250,7 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
-    private void checkLocationPermission() {
+    private boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
@@ -282,6 +277,7 @@ public class AddTaskActivity extends AppCompatActivity {
                         PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
         }
+        return false;
     }
 
     @Override

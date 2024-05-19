@@ -128,6 +128,9 @@ public class BackupRestoreActivity extends AppCompatActivity {
             outputStream.flush();
             outputStream.close();
 
+            // Update camera and map info if needed
+            // You can add your code here to extract camera and map info from the backup file and update the database accordingly
+
             Toast.makeText(this, "Restore completed", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();

@@ -8,12 +8,12 @@
     android:elevation="4dp"
     app:cardCornerRadius="8dp">
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:padding="16dp">
+
 
         <LinearLayout
             android:layout_width="0dp"
@@ -43,8 +43,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="16dp">
 
                 <!-- Date Icon and Value -->
 
@@ -79,8 +79,8 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginEnd="16dp"
+                    android:orientation="horizontal"
                     tools:ignore="UseCompoundDrawables">
 
                     <!-- Time Icon -->
@@ -142,9 +142,32 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="102dp"
+                android:orientation="horizontal">
+
+                <!-- Camera Image -->
+                <ImageView
+                    android:id="@+id/imageViewCamera"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+
+                <!-- Map Image -->
+                <ImageView
+                    android:id="@+id/imageViewMap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textAlignment="center"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:textAlignment="center">
 
                 <!-- Done Button for completed task-->
                 <Button
@@ -165,20 +188,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:textSize="12sp"
             android:textColor="@android:color/black"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone" />
 
         <!-- Notification Icon -->
         <ImageView
             android:id="@+id/imageButtonNotification"
-            android:visibility="gone"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="8dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_notification" />
+            android:src="@drawable/ic_notification"
+            android:visibility="gone" />
 
         <!-- Check Icon -->
 
@@ -201,25 +224,6 @@
             android:src="@drawable/ic_pending" />
 
         <!-- Overdue Icon -->
-
-        <GridLayout
-            android:layout_width="93dp"
-            android:layout_height="238dp"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imageViewCamera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <ImageView
-                android:id="@+id/imageViewMap"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-
-        </GridLayout>
-
         <ImageView
             android:id="@+id/imageButtonOverdue"
             android:layout_width="30dp"
