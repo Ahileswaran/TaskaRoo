@@ -167,28 +167,50 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 if (position != RecyclerView.NO_POSITION) {
                     Task task = tasks.get(position);
 
-                    task.setCompleted(true);
-                    task.setTimestamp(getDateTime());
+                    // Display the Lottie animation
+                    playCompletionAnimation();
 
-                    try (DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext())) {
-                        int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
+                    // Wait for the animation to finish before updating the completion status
+                    animationView.addAnimatorListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
 
-                        if (isUpdated == 0) {
-                            Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
-                        } else {
-                            completeButton.setVisibility(View.GONE);
-                            notifyItemChanged(position);
-                            playCompletionAnimation();
-                            String completeMessage = dbHelper.getCompleteMessage(task.getId());
-                            if (completeMessage != null) {
-                                Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            // Update the completion status of the task
+                            task.setCompleted(true);
+                            task.setTimestamp(getDateTime());
+
+                            try (DatabaseHelper dbHelper = new DatabaseHelper(itemView.getContext())) {
+                                int isUpdated = dbHelper.updateTaskCompletionStatus(task.getId(), true);
+
+                                if (isUpdated == 0) {
+                                    Toast.makeText(itemView.getContext(), "Failed to update completion status", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    completeButton.setVisibility(View.GONE);
+                                    notifyItemChanged(position);
+                                    String completeMessage = dbHelper.getCompleteMessage(task.getId());
+                                    if (completeMessage != null) {
+                                        Toast.makeText(itemView.getContext(), completeMessage, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+                        }
+                    });
                 }
             });
+
         }
 
         public void bind(Task task) {
@@ -274,6 +296,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        //Open the map Image view map clicked
         private void imageViewMapClick() {
             int position = getBindingAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
@@ -295,6 +318,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
+        // Display Lotti Animation when task complete button clicked
         private void playCompletionAnimation() {
             animationView.setVisibility(View.VISIBLE);
             animationView.playAnimation();
