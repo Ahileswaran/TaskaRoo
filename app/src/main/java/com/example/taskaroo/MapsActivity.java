@@ -44,14 +44,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Set default location (e.g., Sydney)
-        LatLng defaultLocation = new LatLng(-34, 151);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(defaultLocation));
+        // Set default location (e.g., Colombo, Sri Lanka)
+        LatLng defaultLocation = new LatLng(6.9271, 79.8612);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10));
 
+        // Set a click listener on the map
         mMap.setOnMapClickListener(latLng -> {
+            // Clear previous markers
             mMap.clear();
+            // Update the selected location
             selectedLocation = latLng;
+            // Add a marker at the selected location
             mMap.addMarker(new MarkerOptions().position(latLng).title("Selected Location"));
+            // Move the camera to the selected location
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         });
     }

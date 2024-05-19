@@ -72,16 +72,14 @@ public class TaskView extends LinearLayout {
             ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
             double lat = buffer.getDouble();
             double lng = buffer.getDouble();
-            Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
+            String locationInfo = "Location: Lat " + lat + ", Long " + lng;
+            textViewLocation.setText(locationInfo);
+            textViewLocation.setVisibility(View.VISIBLE);
             imageViewMap.setVisibility(View.VISIBLE);
-            imageViewMap.setImageBitmap(mapBitmap);
         } else {
-            imageViewMap.setVisibility(View.GONE); // Hide imageView if no map info is available
+            textViewLocation.setVisibility(View.GONE);
+            imageViewMap.setVisibility(View.GONE);
         }
     }
 
-    private Bitmap getMapPreviewBitmap(double lat, double lng) {
-
-        return BitmapFactory.decodeResource(getResources(), R.drawable.placeholder_map);
-    }
 }

@@ -294,6 +294,7 @@ public class AddTaskActivity extends AppCompatActivity {
         imageViewMap.setVisibility(View.GONE);
         cameraImage = null;
         mapInfo = null;
+        textViewLocation.setVisibility(View.GONE);
     }
 
     private boolean checkLocationPermission() {
