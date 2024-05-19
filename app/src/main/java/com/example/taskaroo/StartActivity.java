@@ -43,13 +43,11 @@ public class StartActivity extends AppCompatActivity {
 
         // Adding a touch listener to switch to MainActivity when the screen is touched
         imageView.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    // Start MainActivity
-                    Intent intent = new Intent(StartActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish(); // Close this activity
-                    return true;
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {// Start MainActivity
+                Intent intent = new Intent(StartActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish(); // Close this activity
+                return true;
             }
             return false;
         });
