@@ -36,20 +36,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Task> taskList;
     private AlertDialog deleteConfirmationDialog;
     private DrawerLayout drawerLayout;
-
+    private FloatingActionButton fabAddTask;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         // Initialize views
         RecyclerView taskRecyclerView = findViewById(R.id.taskRecyclerView);
-        FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
+        fabAddTask = findViewById(R.id.fab_add_task);
 
         // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
@@ -107,10 +104,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Initialize notification channel
         createNotificationChannel();
+
+        // Add scroll listener to RecyclerView
+        taskRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && fabAddTask.isShown()) {
+                    fabAddTask.hide();
+                } else if (dy < 0 && !fabAddTask.isShown()) {
+                    fabAddTask.show();
+                }
+            }
+        });
     }
 
-
-    //Create Notification Chanel
+    //Create Notification Channel
     private void createNotificationChannel() {
         CharSequence name = "Taskaroo Channel";
         String description = "Channel for Taskaroo notifications";
@@ -201,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, BackupRestoreActivity.class));
         } else if (id == R.id.nav_select_theme) {
             toggleTheme();
-        }else if(id == R.id.nav_export_pdf){
+        } else if (id == R.id.nav_export_pdf) {
             startActivity((new Intent(this, ExportTaskPDFActivity.class)));
         }
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -239,6 +248,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
     }
-
-
 }
+

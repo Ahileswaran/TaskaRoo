@@ -11,6 +11,7 @@
     <color name="light_green" tools:ignore="MissingDefaultResource">#4CAF50</color>
 
 
+
     <color name="title_background_color">#03A9F4</color>  <!-- Light Blue -->
     <color name="description_background_color">#E0E0E0</color> <!-- Light Gray -->
     <color name="date_background_color">#E0E0E0</color> <!-- Light Gray -->
