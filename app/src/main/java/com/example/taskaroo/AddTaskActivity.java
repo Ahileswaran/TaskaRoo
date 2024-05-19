@@ -11,8 +11,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -84,6 +86,9 @@ public class AddTaskActivity extends AppCompatActivity {
         imageViewMap = findViewById(R.id.imageViewMap);
 
         textViewLocation = findViewById(R.id.textViewLocation);
+
+        // Set click listener for imageViewMap
+        imageViewMap.setOnClickListener(v -> imageViewMapClick());
 
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
@@ -334,6 +339,41 @@ public class AddTaskActivity extends AppCompatActivity {
             imageViewMap.setVisibility(View.GONE);
         }
     }
+
+    // Method to handle imageViewMap click event
+    public void imageViewMapClick() {
+        String locationText = textViewLocation.getText().toString().trim();
+        if (!locationText.isEmpty()) {
+            String[] parts = locationText.split(":");
+            if (parts.length == 2) {
+                String[] coordinates = parts[1].trim().split(",");
+                if (coordinates.length == 2) {
+                    double latitude = Double.parseDouble(coordinates[0].trim().substring(4)); // Extract latitude
+                    double longitude = Double.parseDouble(coordinates[1].trim().substring(5)); // Extract longitude
+
+                    // Log the extracted latitude and longitude
+                    Log.d("Latitude", String.valueOf(latitude));
+                    Log.d("Longitude", String.valueOf(longitude));
+
+                    // Create a URI with the latitude and longitude
+                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f", latitude, longitude);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    mapIntent.setPackage("com.google.android.apps.maps"); // Open in Google Maps app
+                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(mapIntent);
+                    } else {
+                        // If Google Maps app is not available, open in a browser
+                        mapIntent.setData(Uri.parse("https://www.google.com/maps?q=" + latitude + "," + longitude));
+                        startActivity(mapIntent);
+                    }
+                    return;
+                }
+            }
+        }
+        // If location information is not available or formatted incorrectly, show a message
+        Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+    }
+
 
 }
 
