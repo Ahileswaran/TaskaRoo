@@ -1,23 +1,28 @@
 package com.example.taskaroo;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -38,14 +43,15 @@ public class AddTaskActivity extends AppCompatActivity {
     private Button buttonCancel;
     private Button buttonReset;
 
-    private Button buttonCamera;
-    private Button buttonMap;
+    private ImageButton buttonCamera;
+    private ImageButton buttonMap;
     private DatabaseHelper databaseHelper;
     private Task currentTask;
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_MAP_LOCATION = 2;
 
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 101;
     private byte[] cameraImage;
     private byte[] mapInfo;
 
@@ -73,12 +79,18 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonCancel.setOnClickListener(v -> cancelTask());
         buttonReset.setOnClickListener(v -> resetFields());
 
+
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
             }
         });
+
+        buttonMap.setOnClickListener(v -> {
+            checkLocationPermission();
+        });
+
 
         buttonMap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -240,6 +252,62 @@ public class AddTaskActivity extends AppCompatActivity {
             }
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(this)
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission, please accept to use location functionality")
+                        .setPositiveButton("OK", (dialogInterface, i) -> {
+                            //Prompt the user once explanation has been shown
+                            ActivityCompat.requestPermissions(this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                        })
+                        .create()
+                        .show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        //Request location updates:
+                        selectMapLocation();
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
         }
     }
 

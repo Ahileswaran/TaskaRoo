@@ -52,6 +52,9 @@
         <!-- Declaration of Export task to PDF -->
         <activity android:name=".ExportTaskPDFActivity" />
 
+        <!-- Declaration of Maps Activity -->
+        <activity android:name=".MapsActivity" />
+
         <!-- Google Map API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
