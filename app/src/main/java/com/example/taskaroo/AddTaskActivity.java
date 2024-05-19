@@ -320,8 +320,19 @@ public class AddTaskActivity extends AppCompatActivity {
         }
 
         // Display the saved map location
-        textViewLocation.setVisibility(View.VISIBLE);
-        imageViewMap.setVisibility(View.VISIBLE);
+        if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
+            ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
+            double lat = buffer.getDouble();
+            double lng = buffer.getDouble();
+            String locationInfo = "Location: Lat " + lat + ", Long " + lng;
+            textViewLocation.setText(locationInfo);
+            textViewLocation.setVisibility(View.VISIBLE);
+            imageViewMap.setVisibility(View.VISIBLE);
+        } else {
+            textViewLocation.setVisibility(View.GONE);
+            imageViewMap.setVisibility(View.GONE);
+        }
     }
+
 }
 

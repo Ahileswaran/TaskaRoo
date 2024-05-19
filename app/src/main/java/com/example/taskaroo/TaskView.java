@@ -22,6 +22,8 @@ public class TaskView extends LinearLayout {
     private ImageView imageViewCamera;
     private ImageView imageViewMap;
 
+    private TextView textViewLocation;
+
     public TaskView(Context context) {
         super(context);
         init(context);
@@ -45,6 +47,7 @@ public class TaskView extends LinearLayout {
         textViewTime = findViewById(R.id.textViewTime);
         textViewNotification = findViewById(R.id.textViewNotification);
         imageViewCamera = findViewById(R.id.imageViewCamera);
+        textViewLocation= findViewById(R.id.textViewLocation);
         imageViewMap = findViewById(R.id.imageViewMap);
     }
 
