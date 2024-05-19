@@ -41,24 +41,24 @@
             <!-- Images for Camera and Map -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="105dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/description_background_color"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:background="@drawable/description_background">
 
                 <!-- Camera Image -->
                 <ImageView
                     android:id="@+id/imageViewCamera"
                     android:layout_width="101dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="84dp"
                     android:src="@drawable/placeholder_image"
                     android:visibility="gone" />
 
-                <!-- Map Location Icon -->
+                <!-- Location Icon -->
                 <ImageView
                     android:id="@+id/imageViewMap"
                     android:layout_width="47dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="46dp"
                     android:src="@drawable/placeholder_map"
                     android:visibility="gone" />
 
@@ -67,8 +67,8 @@
                     android:id="@+id/textViewLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="45dp"
                     android:text="Location: "
+                    android:padding="15dp"
                     android:textColor="@color/light_green"
                     android:textSize="10sp"
                     android:textStyle="bold"
