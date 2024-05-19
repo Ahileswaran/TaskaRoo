@@ -134,7 +134,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     intent.putExtra("task_date", task.getDate());
                     intent.putExtra("task_time", task.getTime());
                     intent.putExtra("task_notification", task.getNumberOfNotifications());
-                    intent.putExtra("task_camera_image", task.getCameraInfo());
+                    intent.putExtra("task_camera_image", task.getCameraImage());
                     intent.putExtra("task_map_info", task.getMapInfo());
                     context.startActivity(intent);
                     if (listener != null) {
@@ -180,9 +180,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
             // Display camera image
-            if (task.getCameraInfo() != null && task.getCameraInfo().length > 0) {
+            if (task.getCameraImage() != null && task.getCameraImage().length > 0) {
                 imageViewCamera.setVisibility(View.VISIBLE);
-                imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length));
+                imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraImage(), 0, task.getCameraImage().length));
             } else {
                 imageViewCamera.setVisibility(View.GONE);
             }

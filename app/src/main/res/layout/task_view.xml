@@ -38,6 +38,7 @@
                 android:textColor="@color/black"
                 android:textSize="18sp" />
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="51dp"
@@ -47,7 +48,7 @@
                 <!-- Date Icon and Value -->
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginEnd="16dp"
                     android:orientation="horizontal"
                     tools:ignore="UseCompoundDrawables">
@@ -126,34 +127,6 @@
 
             </LinearLayout>
 
-            <!-- Images for Camera and Map -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <!-- Camera Image -->
-                <ImageView
-                    android:id="@+id/imageViewCamera"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone"
-                    android:src="@drawable/placeholder_image"/>
-
-                <!-- Map Image -->
-                <ImageView
-                    android:id="@+id/imageViewMap"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone"
-                    android:src="@drawable/placeholder_map"/>
-            </LinearLayout>
 
             <!-- Progress bar for task priority-->
             <ProgressBar
@@ -184,8 +157,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end">
+            android:gravity="end"
+            android:orientation="horizontal">
 
             <!-- Number of Notifications -->
             <TextView
@@ -235,6 +208,34 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_overdue" />
         </LinearLayout>
+
+        <!-- Images for Camera and Map -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <!-- Camera Image -->
+            <ImageView
+                android:id="@+id/imageViewCamera"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/placeholder_image"/>
+
+            <!-- Map Image -->
+            <ImageView
+                android:id="@+id/imageViewMap"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:src="@drawable/placeholder_map"/>
+        </LinearLayout>
+
 
         <!-- Lottie AnimationView for displaying animations -->
         <com.airbnb.lottie.LottieAnimationView
