@@ -1,6 +1,7 @@
 package com.example.taskaroo;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -44,13 +45,6 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText editTextTime;
     private EditText editTextReminder;
 
-    private Button buttonSave;
-    private Button buttonCancel;
-    private Button buttonReset;
-
-    private ImageButton buttonCamera;
-    private ImageButton buttonMap;
-
     private ImageView imageViewCamera;
     private ImageView imageViewMap;
 
@@ -76,12 +70,12 @@ public class AddTaskActivity extends AppCompatActivity {
         editTextDate = findViewById(R.id.editTextDate);
         editTextTime = findViewById(R.id.editTextTime);
         editTextReminder = findViewById(R.id.editTextReminder);
-        buttonSave = findViewById(R.id.buttonSaveTask);
-        buttonCancel = findViewById(R.id.buttonCancel);
-        buttonReset = findViewById(R.id.buttonReset);
+        Button buttonSave = findViewById(R.id.buttonSaveTask);
+        Button buttonCancel = findViewById(R.id.buttonCancel);
+        Button buttonReset = findViewById(R.id.buttonReset);
 
-        buttonCamera = findViewById(R.id.buttonCamera);
-        buttonMap = findViewById(R.id.buttonMap);
+        ImageButton buttonCamera = findViewById(R.id.buttonCamera);
+        ImageButton buttonMap = findViewById(R.id.buttonMap);
         imageViewCamera = findViewById(R.id.imageViewCamera);
         imageViewMap = findViewById(R.id.imageViewMap);
 
@@ -101,12 +95,7 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonCancel.setOnClickListener(v -> cancelTask());
         buttonReset.setOnClickListener(v -> resetFields());
 
-        buttonCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchTakePictureIntent();
-            }
-        });
+        buttonCamera.setOnClickListener(v -> dispatchTakePictureIntent());
 
         buttonMap.setOnClickListener(v -> {
             if (checkLocationPermission()) {
@@ -142,9 +131,17 @@ public class AddTaskActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            cameraImage = getBitmapAsByteArray(imageBitmap);
+            Bundle extras = null;
+            if (data != null) {
+                extras = data.getExtras();
+            }
+            Bitmap imageBitmap = null;
+            if (extras != null) {
+                imageBitmap = (Bitmap) extras.get("data");
+            }
+            if (imageBitmap != null) {
+                cameraImage = getBitmapAsByteArray(imageBitmap);
+            }
 
             // Display the captured image in the ImageView
             imageViewCamera.setVisibility(View.VISIBLE);
@@ -261,17 +258,21 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     // Schedule Notification for the task
+    @SuppressLint("MissingPermission")
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         try {
             String dateTimeString = date + " " + time;
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             Date dateTime = dateFormat.parse(dateTimeString);
-            long dateTimeMillis = dateTime.getTime();
+            long dateTimeMillis = 0;
+            if (dateTime != null) {
+                dateTimeMillis = dateTime.getTime();
+            }
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
             for (int i = 1; i <= numberOfNotifications; i++) {
-                long triggerTime = dateTimeMillis - i * 60 * 1000; // Remind before i minutes
+                long triggerTime = dateTimeMillis - (long) i * 60 * 1000; // Remind before i minutes
 
                 Intent intent = new Intent(this, NotificationReceiver.class);
                 intent.putExtra("task_name", taskName);
