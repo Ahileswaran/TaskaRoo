@@ -115,12 +115,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageViewMap.setOnClickListener(v -> imageViewMapClick());
 
             //Image click
-            imageViewCamera.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getBindingAdapterPosition();
-                    imageViewCameraClick(context, position);
-                }
+            imageViewCamera.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                imageViewCameraClick(context, position);
             });
 
 
@@ -173,11 +170,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     // Wait for the animation to finish before updating the completion status
                     animationView.addAnimatorListener(new Animator.AnimatorListener() {
                         @Override
-                        public void onAnimationStart(Animator animation) {
+                        public void onAnimationStart(@NonNull Animator animation) {
                         }
 
                         @Override
-                        public void onAnimationEnd(Animator animation) {
+                        public void onAnimationEnd(@NonNull Animator animation) {
                             // Update the completion status of the task
                             task.setCompleted(true);
                             task.setTimestamp(getDateTime());
@@ -201,11 +198,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                         }
 
                         @Override
-                        public void onAnimationCancel(Animator animation) {
+                        public void onAnimationCancel(@NonNull Animator animation) {
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animator animation) {
+                        public void onAnimationRepeat(@NonNull Animator animation) {
                         }
                     });
                 }
@@ -324,20 +321,20 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             animationView.playAnimation();
             animationView.addAnimatorListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     animationView.setVisibility(View.GONE);
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {
+                public void onAnimationCancel(@NonNull Animator animation) {
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {
+                public void onAnimationRepeat(@NonNull Animator animation) {
                 }
             });
         }
