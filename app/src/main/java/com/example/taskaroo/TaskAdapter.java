@@ -134,7 +134,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                     intent.putExtra("task_date", task.getDate());
                     intent.putExtra("task_time", task.getTime());
                     intent.putExtra("task_notification", task.getNumberOfNotifications());
-                    // Add extras for camera image and map info
                     intent.putExtra("task_camera_image", task.getCameraImage());
                     intent.putExtra("task_map_info", task.getMapInfo());
                     context.startActivity(intent);
@@ -180,6 +179,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
+            // Display camera image
             if (task.getCameraImage() != null && task.getCameraImage().length > 0) {
                 imageViewCamera.setVisibility(View.VISIBLE);
                 imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraImage(), 0, task.getCameraImage().length));
@@ -187,10 +187,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 imageViewCamera.setVisibility(View.GONE);
             }
 
+            // Display map image
             if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
                 imageViewMap.setVisibility(View.VISIBLE);
-                // Assume you have a method to display the map info, for example:
-                // imageViewMap.setImageBitmap(getMapBitmap(task.getMapInfo()));
+                imageViewMap.setImageBitmap(BitmapFactory.decodeByteArray(task.getMapInfo(), 0, task.getMapInfo().length));
             } else {
                 imageViewMap.setVisibility(View.GONE);
             }
@@ -269,7 +269,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
             } else if (progress >= 50) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
-            } else progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
+            } else {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
+            }
         }
 
         private void editTask() {

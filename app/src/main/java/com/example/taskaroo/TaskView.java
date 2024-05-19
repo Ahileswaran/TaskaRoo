@@ -1,12 +1,14 @@
 package com.example.taskaroo;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 public class TaskView extends LinearLayout {
 
@@ -51,19 +53,24 @@ public class TaskView extends LinearLayout {
         textViewTime.setText(task.getTime());
         textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
-        if (task.getCameraImage() != null && task.getCameraImage().length > 0) {
-            imageViewCamera.setVisibility(VISIBLE);
-            imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraImage(), 0, task.getCameraImage().length));
+        // Load camera image
+        if (task.getCameraImage() != null) {
+            Glide.with(getContext())
+                    .load(task.getCameraImage())
+                    .into(imageViewCamera);
+            Log.d("TaskView", "Camera image set");
         } else {
-            imageViewCamera.setVisibility(GONE);
+            Log.d("TaskView", "Camera image is null");
         }
 
-        if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
-            imageViewMap.setVisibility(VISIBLE);
-            // Assume you have a method to display the map info, for example:
-            // imageViewMap.setImageBitmap(getMapBitmap(task.getMapInfo()));
+        // Load map image
+        if (task.getMapInfo() != null) {
+            Glide.with(getContext())
+                    .load(task.getMapInfo())
+                    .into(imageViewMap);
+            Log.d("TaskView", "Map image set");
         } else {
-            imageViewMap.setVisibility(GONE);
+            Log.d("TaskView", "Map image is null");
         }
     }
 }

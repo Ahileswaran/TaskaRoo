@@ -99,10 +99,11 @@ public class Task {
         this.mapInfo = mapInfo;
     }
 
-    public void setCameraInfo(byte[] cameraImage) {
-    }
-
     public byte[] getCameraInfo() {
         return cameraInfo;
+    }
+
+    public void setCameraInfo(byte[] cameraInfo) {
+        this.cameraInfo = cameraInfo;
     }
 }
