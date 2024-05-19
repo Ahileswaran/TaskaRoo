@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -40,14 +41,19 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText editTextDate;
     private EditText editTextTime;
     private EditText editTextReminder;
+
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonReset;
 
     private ImageButton buttonCamera;
     private ImageButton buttonMap;
+
     private ImageView imageViewCamera;
     private ImageView imageViewMap;
+
+    private TextView textViewLocation;
+
     private DatabaseHelper databaseHelper;
     private Task currentTask;
 
@@ -76,6 +82,8 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonMap = findViewById(R.id.buttonMap);
         imageViewCamera = findViewById(R.id.imageViewCamera);
         imageViewMap = findViewById(R.id.imageViewMap);
+
+        textViewLocation = findViewById(R.id.textViewLocation);
 
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
@@ -139,12 +147,8 @@ public class AddTaskActivity extends AppCompatActivity {
                 double lng = data.getDoubleExtra("selected_lng", 0);
                 mapInfo = getMapInfoAsByteArray(lat, lng);
 
-                // Generate a map preview bitmap
-                Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
-
-                // Display the map preview in the ImageView
-                imageViewMap.setVisibility(View.VISIBLE);
-                imageViewMap.setImageBitmap(mapBitmap);
+                // Call the method to set location information
+                setLocationInfo(lat, lng);
             }
         }
     }
@@ -162,12 +166,14 @@ public class AddTaskActivity extends AppCompatActivity {
         return buffer.array();
     }
 
-    private Bitmap getMapPreviewBitmap(double lat, double lng) {
-        // Generate a static map image based on the lat and lng
-        // For demonstration, this function should return a Bitmap representing the map preview
-        // You can use Google Static Maps API to generate the map image or use any other map provider's static image API
-        // Here, we just return a placeholder image for demonstration purposes
-        return BitmapFactory.decodeResource(getResources(), R.drawable.placeholder_map);
+    private void setLocationInfo(double latitude, double longitude) {
+        // Set the text with latitude and longitude information
+        String locationInfo = "Location: Lat " + latitude + ", Long " + longitude;
+        textViewLocation.setText(locationInfo);
+
+        // Make the imageViewMap and textViewLocation visible
+        imageViewMap.setVisibility(View.VISIBLE);
+        textViewLocation.setVisibility(View.VISIBLE);
     }
 
     // For selecting date
@@ -314,13 +320,8 @@ public class AddTaskActivity extends AppCompatActivity {
         }
 
         // Display the saved map location
-        if (task.getMapInfo() != null) {
-            ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
-            double lat = buffer.getDouble();
-            double lng = buffer.getDouble();
-            Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
-            imageViewMap.setVisibility(View.VISIBLE);
-            imageViewMap.setImageBitmap(mapBitmap);
-        }
+        textViewLocation.setVisibility(View.VISIBLE);
+        imageViewMap.setVisibility(View.VISIBLE);
     }
 }
+
