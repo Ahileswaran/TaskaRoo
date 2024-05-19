@@ -339,25 +339,30 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             });
         }
 
+        //Calculation for the progress bar
         private int calculateProgress(long diffInMilliseconds) {
-            final long totalMilliseconds = 86400000; // 24 hours in milliseconds
-            if (diffInMilliseconds <= 0) {
+            long highThreshold = 24 * 60 * 60 * 1000;
+            long mediumThreshold = 3 * 24 * 60 * 60 * 1000;
+            if (diffInMilliseconds < 0) {
                 return 100;
+            } else if (diffInMilliseconds < highThreshold) {
+                return 75;
+            } else if (diffInMilliseconds < mediumThreshold) {
+                return 50;
+            } else {
+                return 25;
             }
-            return 100 - (int) ((diffInMilliseconds * 100) / totalMilliseconds);
         }
 
+        //Progress bar color
         private void setProgressBarColor(int progress) {
-            if (progress <= 25) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
-            } else if (progress <= 50) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
-            } else if (progress <= 75) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(255, 165, 0))); // Orange color
-            } else {
+            if (progress >= 75) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
-            }
+            } else if (progress >= 50) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
+            } else progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
         }
+
 
         private String getDateTime() {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
