@@ -3,7 +3,6 @@ package com.example.taskaroo;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -11,12 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -45,6 +46,8 @@ public class AddTaskActivity extends AppCompatActivity {
 
     private ImageButton buttonCamera;
     private ImageButton buttonMap;
+    private ImageView imageViewCamera;
+    private ImageView imageViewMap;
     private DatabaseHelper databaseHelper;
     private Task currentTask;
 
@@ -71,6 +74,8 @@ public class AddTaskActivity extends AppCompatActivity {
 
         buttonCamera = findViewById(R.id.buttonCamera);
         buttonMap = findViewById(R.id.buttonMap);
+        imageViewCamera = findViewById(R.id.imageViewCamera);
+        imageViewMap = findViewById(R.id.imageViewMap);
 
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
@@ -78,7 +83,6 @@ public class AddTaskActivity extends AppCompatActivity {
         buttonSave.setOnClickListener(v -> saveTask());
         buttonCancel.setOnClickListener(v -> cancelTask());
         buttonReset.setOnClickListener(v -> resetFields());
-
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +96,6 @@ public class AddTaskActivity extends AppCompatActivity {
                 selectMapLocation();
             }
         });
-
 
         // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
@@ -125,12 +128,23 @@ public class AddTaskActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             cameraImage = getBitmapAsByteArray(imageBitmap);
+
+            // Display the captured image in the ImageView
+            imageViewCamera.setVisibility(View.VISIBLE);
+            imageViewCamera.setImageBitmap(imageBitmap);
         }
         if (requestCode == REQUEST_MAP_LOCATION && resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 double lat = data.getDoubleExtra("selected_lat", 0);
                 double lng = data.getDoubleExtra("selected_lng", 0);
                 mapInfo = getMapInfoAsByteArray(lat, lng);
+
+                // Generate a map preview bitmap
+                Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
+
+                // Display the map preview in the ImageView
+                imageViewMap.setVisibility(View.VISIBLE);
+                imageViewMap.setImageBitmap(mapBitmap);
             }
         }
     }
@@ -146,6 +160,14 @@ public class AddTaskActivity extends AppCompatActivity {
         buffer.putDouble(lat);
         buffer.putDouble(lng);
         return buffer.array();
+    }
+
+    private Bitmap getMapPreviewBitmap(double lat, double lng) {
+        // Generate a static map image based on the lat and lng
+        // For demonstration, this function should return a Bitmap representing the map preview
+        // You can use Google Static Maps API to generate the map image or use any other map provider's static image API
+        // Here, we just return a placeholder image for demonstration purposes
+        return BitmapFactory.decodeResource(getResources(), R.drawable.placeholder_map);
     }
 
     // For selecting date
@@ -227,22 +249,24 @@ public class AddTaskActivity extends AppCompatActivity {
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         try {
             String dateTimeString = date + " " + time;
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-            Date dateTime = sdf.parse(dateTimeString);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dateTime);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dateTime = dateFormat.parse(dateTimeString);
+            long dateTimeMillis = dateTime.getTime();
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-            Intent notificationIntent = new Intent(this, NotificationReceiver.class);
-            notificationIntent.putExtra("task_name", taskName);
-            notificationIntent.putExtra("description", description);
+            for (int i = 1; i <= numberOfNotifications; i++) {
+                long triggerTime = dateTimeMillis - i * 60 * 1000; // Remind before i minutes
 
-            for (int i = 0; i < numberOfNotifications; i++) {
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent intent = new Intent(this, NotificationReceiver.class);
+                intent.putExtra("task_name", taskName);
+                intent.putExtra("task_description", description);
+                intent.putExtra("task_id", currentTask.getId());
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, currentTask.getId() * 1000 + i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
                 if (alarmManager != null) {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + (i * AlarmManager.INTERVAL_HOUR), pendingIntent);
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
                 }
             }
         } catch (ParseException e) {
@@ -250,83 +274,53 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", (dialogInterface, i) -> {
-                            //Prompt the user once explanation has been shown
-                            ActivityCompat.requestPermissions(this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                        })
-                        .create()
-                        .show();
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        //Request location updates:
-                        selectMapLocation();
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }
-        }
-    }
-
-    // Cancel Task
     private void cancelTask() {
         finish();
     }
 
-    // Reset fields
     private void resetFields() {
         editTextTaskName.setText("");
         editTextDescription.setText("");
         editTextDate.setText("");
         editTextTime.setText("");
         editTextReminder.setText("");
+        imageViewCamera.setVisibility(View.GONE);
+        imageViewMap.setVisibility(View.GONE);
+        cameraImage = null;
+        mapInfo = null;
     }
 
-    // Fill task data
+    private boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private void fillTaskData(Task task) {
         editTextTaskName.setText(task.getName());
         editTextDescription.setText(task.getDescription());
         editTextDate.setText(task.getDate());
         editTextTime.setText(task.getTime());
         editTextReminder.setText(String.valueOf(task.getNumberOfNotifications()));
+
+        // Display the saved camera image
+        if (task.getCameraInfo() != null) {
+            Bitmap cameraBitmap = BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length);
+            imageViewCamera.setVisibility(View.VISIBLE);
+            imageViewCamera.setImageBitmap(cameraBitmap);
+        }
+
+        // Display the saved map location
+        if (task.getMapInfo() != null) {
+            ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
+            double lat = buffer.getDouble();
+            double lng = buffer.getDouble();
+            Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
+            imageViewMap.setVisibility(View.VISIBLE);
+            imageViewMap.setImageBitmap(mapBitmap);
+        }
     }
 }

@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return COL_ID;
     }
 
-    //Create Database
+    // Create Database
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
@@ -65,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    //Adding the task
+    // Adding the task
     public long addTask(String taskName, String description, String date, String time, int numberOfNotifications,
                         int completed, byte[] mapInfo, byte[] cameraInfo) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -81,7 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_NAME, null, values);
     }
 
-    //Get all the tasks
+    // Get all the tasks
     @SuppressLint("Range")
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -97,8 +96,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
                 task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
                 task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
-                task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
-                task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
+                task.setMapInfo(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO)));
+                task.setCameraInfo(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO)));
                 taskList.add(task);
             } while (cursor.moveToNext());
         }
@@ -106,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-    //Update task
+    // Update task
     public int updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -122,20 +121,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
     }
 
-    //Delete Task
+    // Delete Task
     public void deleteTask(int taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(taskId)});
         db.close();
     }
 
-    //helper method for get time
+    // Helper method for getting current date and time
     private String getDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return sdf.format(new Date());
     }
 
-    //Get the task by ID
+    // Get the task by ID
     @SuppressLint("Range")
     public Task getTaskById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -150,14 +149,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
             task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
             task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
-            task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
-            task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
+            task.setMapInfo(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO)));
+            task.setCameraInfo(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO)));
             cursor.close();
         }
         return task;
     }
 
-    //Method for task completion
+    // Method for updating task completion status
     public int updateTaskCompletionStatus(int taskId, boolean completed) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -170,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected;
     }
 
-    //Method to display complete task message
+    // Method to display complete task message
     public String getCompleteMessage(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COL_DATE + ", " + COL_TIME + ", " + COL_COMPLETED +
@@ -216,7 +215,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return "Information unavailable.";
     }
 
-    //Method to get the last added task from the database
+    // Method to get the last added task from the database
     @SuppressLint("Range")
     public Task getLastAddedTask() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -231,14 +230,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             task.setTime(cursor.getString(cursor.getColumnIndex(COL_TIME)));
             task.setNumberOfNotifications(cursor.getInt(cursor.getColumnIndex(COL_NUMBER_OF_NOTIFICATIONS)));
             task.setCompleted(cursor.getInt(cursor.getColumnIndex(COL_COMPLETED)) == 1);
-            task.setMapInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO))).getBytes());
-            task.setCameraInfo(Arrays.toString(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO))).getBytes());
+            task.setMapInfo(cursor.getBlob(cursor.getColumnIndex(COL_MAP_INFO)));
+            task.setCameraInfo(cursor.getBlob(cursor.getColumnIndex(COL_CAMERA_INFO)));
             cursor.close();
         }
         return task;
     }
-
-    public void addTask(String taskName, String description, String date, String time, int numberOfNotifications, int i) {
-    }
 }
-

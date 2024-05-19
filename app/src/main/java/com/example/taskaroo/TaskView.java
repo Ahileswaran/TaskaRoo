@@ -1,12 +1,16 @@
 package com.example.taskaroo;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.nio.ByteBuffer;
 
 public class TaskView extends LinearLayout {
 
@@ -51,19 +55,33 @@ public class TaskView extends LinearLayout {
         textViewTime.setText(task.getTime());
         textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
-        if (task.getCameraImage() != null && task.getCameraImage().length > 0) {
-            imageViewCamera.setVisibility(VISIBLE);
-            imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraImage(), 0, task.getCameraImage().length));
+        // Display the saved camera image
+        if (task.getCameraInfo() != null && task.getCameraInfo().length > 0) {
+            Bitmap cameraBitmap = BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length);
+            imageViewCamera.setVisibility(View.VISIBLE);
+            imageViewCamera.setImageBitmap(cameraBitmap);
         } else {
-            imageViewCamera.setVisibility(GONE);
+            imageViewCamera.setVisibility(View.GONE); // Hide imageView if no image is available
         }
 
+        // Display the saved map location
         if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
-            imageViewMap.setVisibility(VISIBLE);
-            // Assume you have a method to display the map info, for example:
-            // imageViewMap.setImageBitmap(getMapBitmap(task.getMapInfo()));
+            ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
+            double lat = buffer.getDouble();
+            double lng = buffer.getDouble();
+            Bitmap mapBitmap = getMapPreviewBitmap(lat, lng);
+            imageViewMap.setVisibility(View.VISIBLE);
+            imageViewMap.setImageBitmap(mapBitmap);
         } else {
-            imageViewMap.setVisibility(GONE);
+            imageViewMap.setVisibility(View.GONE); // Hide imageView if no map info is available
         }
+    }
+
+    private Bitmap getMapPreviewBitmap(double lat, double lng) {
+        // Generate a static map image based on the lat and lng
+        // For demonstration, this function should return a Bitmap representing the map preview
+        // You can use Google Static Maps API to generate the map image or use any other map provider's static image API
+        // Here, we just return a placeholder image for demonstration purposes
+        return BitmapFactory.decodeResource(getResources(), R.drawable.placeholder_map);
     }
 }

@@ -11,14 +11,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
-
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -34,7 +32,7 @@
             <TextView
                 android:id="@+id/textViewDescription"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/description_background"
                 android:textColor="@color/black"
@@ -42,13 +40,11 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="51dp"
                 android:orientation="horizontal"
                 android:padding="16dp">
 
                 <!-- Date Icon and Value -->
-
-                <!-- Time Icon and Value -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -60,8 +56,7 @@
                     <ImageView
                         android:id="@+id/imageViewDateIcon"
                         android:layout_width="20dp"
-                        android:layout_height="match_parent"
-                        android:minHeight="30dp"
+                        android:layout_height="wrap_content"
                         android:src="@drawable/ic_date" />
 
                     <!-- Date Value -->
@@ -76,6 +71,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <!-- Time Icon and Value -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -87,8 +83,7 @@
                     <ImageView
                         android:id="@+id/imageViewTimeIcon"
                         android:layout_width="20dp"
-                        android:layout_height="match_parent"
-                        android:minHeight="39dp"
+                        android:layout_height="wrap_content"
                         android:src="@drawable/ic_time" />
 
                     <!-- Time Value -->
@@ -114,7 +109,7 @@
                     <ImageView
                         android:id="@+id/imageViewRemindersIcon"
                         android:layout_width="20dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:src="@drawable/ic_reminder" />
 
                     <!-- Reminders Value -->
@@ -131,41 +126,45 @@
 
             </LinearLayout>
 
+            <!-- Images for Camera and Map -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <!-- Camera Image -->
+                <ImageView
+                    android:id="@+id/imageViewCamera"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:src="@drawable/placeholder_image"/>
+
+                <!-- Map Image -->
+                <ImageView
+                    android:id="@+id/imageViewMap"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:src="@drawable/placeholder_map"/>
+            </LinearLayout>
 
             <!-- Progress bar for task priority-->
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="102dp"
-                android:orientation="horizontal">
-
-                <!-- Camera Image -->
-                <ImageView
-                    android:id="@+id/imageViewCamera"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:visibility="gone" />
-
-                <!-- Map Image -->
-                <ImageView
-                    android:id="@+id/imageViewMap"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:visibility="gone" />
-            </LinearLayout>
-
+                android:layout_height="wrap_content" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:textAlignment="center">
 
@@ -179,64 +178,63 @@
 
             </LinearLayout>
 
-
         </LinearLayout>
 
-        <!-- Number of Notifications -->
-        <TextView
-            android:id="@+id/textViewNotificationCount"
-            android:layout_width="wrap_content"
+        <!-- Icons for notifications, check, pending, and overdue statuses -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:textColor="@android:color/black"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="end">
 
-        <!-- Notification Icon -->
-        <ImageView
-            android:id="@+id/imageButtonNotification"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_notification"
-            android:visibility="gone" />
+            <!-- Number of Notifications -->
+            <TextView
+                android:id="@+id/textViewNotificationCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-        <!-- Check Icon -->
+            <!-- Notification Icon -->
+            <ImageView
+                android:id="@+id/imageButtonNotification"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_notification"
+                android:visibility="gone" />
 
-        <ImageView
-            android:id="@+id/imageButtonCheck"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_check" />
+            <!-- Check Icon -->
+            <ImageView
+                android:id="@+id/imageButtonCheck"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_check" />
 
-        <!-- Pending Icon -->
+            <!-- Pending Icon -->
+            <ImageView
+                android:id="@+id/imageButtonPending"
+                android:layout_width="30dp"
+                android:layout_height="33dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_pending" />
 
-        <ImageView
-            android:id="@+id/imageButtonPending"
-            android:layout_width="30dp"
-            android:layout_height="33dp"
-            android:layout_marginStart="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_pending" />
-
-        <!-- Overdue Icon -->
-        <ImageView
-            android:id="@+id/imageButtonOverdue"
-            android:layout_width="30dp"
-            android:layout_height="31dp"
-            android:layout_marginStart="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_overdue" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <!-- Overdue Icon -->
+            <ImageView
+                android:id="@+id/imageButtonOverdue"
+                android:layout_width="30dp"
+                android:layout_height="31dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_overdue" />
+        </LinearLayout>
 
         <!-- Lottie AnimationView for displaying animations -->
         <com.airbnb.lottie.LottieAnimationView
@@ -250,8 +248,5 @@
             app:layout_constraintTop_toTopOf="parent"
             app:lottie_fileName="animation.json" />
     </LinearLayout>
-
-
-
 
 </androidx.cardview.widget.CardView>
