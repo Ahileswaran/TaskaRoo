@@ -8,6 +8,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
+
     private List<Task> tasks;
     private OnTaskClickListener listener;
 
@@ -108,6 +110,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageViewMap = itemView.findViewById(R.id.imageViewMap);
 
             context = itemView.getContext();
+
+            imageViewMap.setOnClickListener(v -> imageViewMapClick());
 
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -259,69 +263,90 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
 
-        private int calculateProgress(long diffInMilliseconds) {
-            long highThreshold = 24 * 60 * 60 * 1000;
-            long mediumThreshold = 3 * 24 * 60 * 60 * 1000;
-            if (diffInMilliseconds < 0) {
-                return 100;
-            } else if (diffInMilliseconds < highThreshold) {
-                return 75;
-            } else if (diffInMilliseconds < mediumThreshold) {
-                return 50;
-            } else {
-                return 25;
-            }
-        }
-
-        private void setProgressBarColor(int progress) {
-            if (progress >= 75) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
-            } else if (progress >= 50) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
-            } else {
-                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
-            }
-        }
-
-        private void editTask() {
+        private void imageViewMapClick() {
             int position = getBindingAdapterPosition();
-            if (position != RecyclerView.NO_POSITION && listener != null) {
+            if (position != RecyclerView.NO_POSITION) {
                 Task task = tasks.get(position);
-                listener.onTaskClick(task);
+                if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
+                    ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
+                    double lat = buffer.getDouble();
+                    double lng = buffer.getDouble();
+                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f?q=%f,%f(Taskaroo)", lat, lng, lat, lng);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, "No app available to open map", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(context, "No location data available", Toast.LENGTH_SHORT).show();
+                }
             }
         }
 
         private void playCompletionAnimation() {
             animationView.setVisibility(View.VISIBLE);
-            animationView.setAnimation("animation.json");
             animationView.playAnimation();
             animationView.addAnimatorListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(@NonNull Animator animation) {
-                    // Animation started
+                public void onAnimationStart(Animator animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(@NonNull Animator animation) {
-                    // Animation ended, hide the animation view
+                public void onAnimationEnd(Animator animation) {
                     animationView.setVisibility(View.GONE);
                 }
 
                 @Override
-                public void onAnimationCancel(@NonNull Animator animation) {
-                    // Animation cancelled
+                public void onAnimationCancel(Animator animation) {
                 }
 
                 @Override
-                public void onAnimationRepeat(@NonNull Animator animation) {
-                    // Animation repeated
+                public void onAnimationRepeat(Animator animation) {
                 }
             });
         }
 
+        private int calculateProgress(long diffInMilliseconds) {
+            final long totalMilliseconds = 86400000; // 24 hours in milliseconds
+            if (diffInMilliseconds <= 0) {
+                return 100;
+            }
+            return 100 - (int) ((diffInMilliseconds * 100) / totalMilliseconds);
+        }
+
+        private void setProgressBarColor(int progress) {
+            if (progress <= 25) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
+            } else if (progress <= 50) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.YELLOW));
+            } else if (progress <= 75) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(255, 165, 0))); // Orange color
+            } else {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
+            }
+        }
+
         private String getDateTime() {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
             return sdf.format(new Date());
+        }
+
+        private void editTask() {
+            int position = getBindingAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Task task = tasks.get(position);
+                Intent intent = new Intent(context, AddTaskActivity.class);
+                intent.putExtra("task_id", task.getId());
+                intent.putExtra("task_name", task.getName());
+                intent.putExtra("task_description", task.getDescription());
+                intent.putExtra("task_date", task.getDate());
+                intent.putExtra("task_time", task.getTime());
+                intent.putExtra("task_notification", task.getNumberOfNotifications());
+                intent.putExtra("task_camera_image", task.getCameraInfo());
+                intent.putExtra("task_map_info", task.getMapInfo());
+                context.startActivity(intent);
+            }
         }
     }
 }
