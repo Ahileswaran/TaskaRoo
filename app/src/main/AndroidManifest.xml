@@ -58,6 +58,9 @@
         <!-- Declaration of Maps Activity -->
         <activity android:name=".MapsActivity" />
 
+        <!-- Declaration of Display Image Activity -->
+        <activity android:name=".DisplayImageActivity" />
+
         <!-- Google Map API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

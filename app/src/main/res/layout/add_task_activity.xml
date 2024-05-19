@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:text="Location: "
                     android:padding="15dp"
-                    android:textColor="@color/black"
+                    android:textColor="@color/light_green"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:visibility="gone" />

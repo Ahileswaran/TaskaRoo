@@ -111,7 +111,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
             context = itemView.getContext();
 
+            //Map icon click
             imageViewMap.setOnClickListener(v -> imageViewMapClick());
+
+            //Image click
+            imageViewCamera.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getBindingAdapterPosition();
+                    imageViewCameraClick(context, position);
+                }
+            });
+
 
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -349,4 +360,23 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             }
         }
     }
+
+    //Handle the camera image click
+    public void imageViewCameraClick(Context context, int position) {
+        if (position != RecyclerView.NO_POSITION && tasks != null && position < tasks.size()) {
+            Task task = tasks.get(position);
+            if (task.getCameraInfo() != null) {
+                // Pass the image byte array to DisplayImageActivity
+                Intent intent = new Intent(context, DisplayImageActivity.class);
+                intent.putExtra("imageByteArray", task.getCameraInfo());
+                context.startActivity(intent);
+            } else {
+                // If the camera image is null, show a message
+                Toast.makeText(context, "No image available", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
 }

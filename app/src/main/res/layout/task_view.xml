@@ -43,6 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="105dp"
                 android:layout_marginTop="8dp"
+                android:background="@color/description_background_color"
                 android:orientation="horizontal">
 
                 <!-- Camera Image -->
@@ -68,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="45dp"
                     android:text="Location: "
-                    android:textColor="@color/black"
+                    android:textColor="@color/light_green"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:visibility="gone" />

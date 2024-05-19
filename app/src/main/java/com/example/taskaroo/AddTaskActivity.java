@@ -90,6 +90,10 @@ public class AddTaskActivity extends AppCompatActivity {
         // Set click listener for imageViewMap
         imageViewMap.setOnClickListener(v -> imageViewMapClick());
 
+        //Open the camera image in the image viewer apps
+        imageViewCamera.setOnClickListener(v -> imageViewCameraClick());
+
+
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
 
@@ -373,6 +377,20 @@ public class AddTaskActivity extends AppCompatActivity {
         // If location information is not available or formatted incorrectly, show a message
         Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
     }
+
+    // Method to handle imageViewCamera click event
+    public void imageViewCameraClick() {
+        if (currentTask != null && currentTask.getCameraInfo() != null) {
+            // Pass the image byte array to DisplayImageActivity
+            Intent intent = new Intent(this, DisplayImageActivity.class);
+            intent.putExtra("imageByteArray", currentTask.getCameraInfo());
+            startActivity(intent);
+        } else {
+            // If the camera image is null or task is null, show a message
+            Toast.makeText(this, "No image available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 
 }
