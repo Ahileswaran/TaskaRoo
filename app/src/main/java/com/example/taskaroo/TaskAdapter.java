@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.GestureDetector;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -78,6 +80,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         private final ImageView imageButtonPending;
         private final ImageView imageButtonCheck;
         private final TextView textViewNotification;
+        private final TextView textViewLocation;
         private final View completeButton;
         private final ProgressBar progressBar;
         private final LottieAnimationView animationView;
@@ -97,6 +100,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             imageButtonPending = itemView.findViewById(R.id.imageButtonPending);
             imageButtonCheck = itemView.findViewById(R.id.imageButtonCheck);
             textViewNotification = itemView.findViewById(R.id.textViewNotification);
+            textViewLocation = itemView.findViewById(R.id.textViewLocation);
             completeButton = itemView.findViewById(R.id.completeButton);
             progressBar = itemView.findViewById(R.id.progressBar);
             animationView = itemView.findViewById(R.id.animation_view);
@@ -179,19 +183,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             textViewTime.setText(task.getTime());
             textViewNotification.setText(String.valueOf(task.getNumberOfNotifications()));
 
-            // Display camera image
-            if (task.getCameraInfo() != null && task.getCameraInfo().length > 0) {
+            // Display the saved camera image
+            if (task.getCameraInfo() != null) {
+                Bitmap cameraBitmap = BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length);
                 imageViewCamera.setVisibility(View.VISIBLE);
-                imageViewCamera.setImageBitmap(BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length));
-            } else {
-                imageViewCamera.setVisibility(View.GONE);
+                imageViewCamera.setImageBitmap(cameraBitmap);
             }
 
-            // Display map image
+            // Display the saved map location
             if (task.getMapInfo() != null && task.getMapInfo().length > 0) {
+                ByteBuffer buffer = ByteBuffer.wrap(task.getMapInfo());
+                double lat = buffer.getDouble();
+                double lng = buffer.getDouble();
+                String locationInfo = "Location: Lat " + lat + ", Long " + lng;
+                textViewLocation.setText(locationInfo);
+                textViewLocation.setVisibility(View.VISIBLE);
                 imageViewMap.setVisibility(View.VISIBLE);
-                imageViewMap.setImageBitmap(BitmapFactory.decodeByteArray(task.getMapInfo(), 0, task.getMapInfo().length));
             } else {
+                textViewLocation.setVisibility(View.GONE);
                 imageViewMap.setVisibility(View.GONE);
             }
 

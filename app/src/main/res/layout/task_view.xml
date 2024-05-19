@@ -41,40 +41,37 @@
             <!-- Images for Camera and Map -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="105dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/description_background"
                 android:orientation="horizontal">
 
                 <!-- Camera Image -->
                 <ImageView
                     android:id="@+id/imageViewCamera"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:scaleType="fitCenter"
-                    android:visibility="gone"
-                    android:src="@drawable/placeholder_image"/>
+                    android:layout_width="101dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/placeholder_image"
+                    android:visibility="gone" />
 
-                <!-- Location Icon -->
+                <!-- Map Location Icon -->
                 <ImageView
                     android:id="@+id/imageViewMap"
-                    android:layout_width="28dp"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"
-                    android:src="@drawable/placeholder_map" />
+                    android:layout_width="47dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/placeholder_map"
+                    android:visibility="gone" />
 
                 <!-- Location Text -->
                 <TextView
                     android:id="@+id/textViewLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="45dp"
                     android:text="Location: "
                     android:textColor="@color/black"
-                    android:visibility="gone"
-                    android:textSize="16sp" />
-
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
