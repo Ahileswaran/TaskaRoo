@@ -78,10 +78,7 @@ public class TaskView extends LinearLayout {
     }
 
     private Bitmap getMapPreviewBitmap(double lat, double lng) {
-        // Generate a static map image based on the lat and lng
-        // For demonstration, this function should return a Bitmap representing the map preview
-        // You can use Google Static Maps API to generate the map image or use any other map provider's static image API
-        // Here, we just return a placeholder image for demonstration purposes
+
         return BitmapFactory.decodeResource(getResources(), R.drawable.placeholder_map);
     }
 }
