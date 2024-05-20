@@ -222,6 +222,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
                 Bitmap cameraBitmap = BitmapFactory.decodeByteArray(task.getCameraInfo(), 0, task.getCameraInfo().length);
                 imageViewCamera.setVisibility(View.VISIBLE);
                 imageViewCamera.setImageBitmap(cameraBitmap);
+            } else {
+                imageViewCamera.setVisibility(View.GONE);
             }
 
             // Display the saved map location
@@ -253,9 +255,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
                     if (dueDate != null && (diffInMilliseconds < 0 || dueDate.equals(now.getTime()))) {
                         completeButton.setVisibility(View.VISIBLE);
+                    } else {
+                        completeButton.setVisibility(View.GONE);
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    completeButton.setVisibility(View.GONE);
                 }
             }
 
