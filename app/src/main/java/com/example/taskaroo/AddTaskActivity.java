@@ -1,7 +1,6 @@
 package com.example.taskaroo;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -258,37 +257,32 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     // Schedule Notification for the task
-    @SuppressLint("MissingPermission")
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         try {
             String dateTimeString = date + " " + time;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-            Date dateTime = dateFormat.parse(dateTimeString);
-            long dateTimeMillis = 0;
-            if (dateTime != null) {
-                dateTimeMillis = dateTime.getTime();
-            }
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dateTime = sdf.parse(dateTimeString);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dateTime);
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-            for (int i = 1; i <= numberOfNotifications; i++) {
-                long triggerTime = dateTimeMillis - (long) i * 60 * 1000; // Remind before i minutes
+            Intent notificationIntent = new Intent(this, NotificationReceiver.class);
+            notificationIntent.putExtra("task_name", taskName);
+            notificationIntent.putExtra("description", description);
 
-                Intent intent = new Intent(this, NotificationReceiver.class);
-                intent.putExtra("task_name", taskName);
-                intent.putExtra("task_description", description);
-                intent.putExtra("task_id", currentTask.getId());
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, currentTask.getId() * 1000 + i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+            for (int i = 0; i < numberOfNotifications; i++) {
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 if (alarmManager != null) {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + (i * AlarmManager.INTERVAL_HOUR), pendingIntent);
                 }
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
     }
+
 
     private void cancelTask() {
         finish();

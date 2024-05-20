@@ -197,6 +197,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
                 android:layout_weight="1"
+                app:backgroundTint="@color/blue"
                 android:text="Save" />
 
             <!-- Cancel Button -->
@@ -206,6 +207,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
                 android:layout_weight="1"
+                app:backgroundTint="@color/blue"
                 android:text="Cancel" />
 
             <!-- Reset Button -->
@@ -214,6 +216,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                app:backgroundTint="@color/blue"
                 android:text="Reset" />
 
         </LinearLayout>
