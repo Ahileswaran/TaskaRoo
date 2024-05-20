@@ -23,7 +23,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -52,12 +53,12 @@ public class AddTaskActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private Task currentTask;
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int REQUEST_MAP_LOCATION = 2;
-
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 101;
     private byte[] cameraImage;
     private byte[] mapInfo;
+
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<Intent> mapLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +84,8 @@ public class AddTaskActivity extends AppCompatActivity {
         // Set click listener for imageViewMap
         imageViewMap.setOnClickListener(v -> imageViewMapClick());
 
-        //Open the camera image in the image viewer apps
+        // Open the camera image in the image viewer apps
         imageViewCamera.setOnClickListener(v -> imageViewCameraClick());
-
 
         editTextDate.setOnClickListener(v -> showDatePickerDialog());
         editTextTime.setOnClickListener(v -> showTimePickerDialog());
@@ -112,50 +112,53 @@ public class AddTaskActivity extends AppCompatActivity {
             currentTask = databaseHelper.getTaskById(taskId);
             fillTaskData(currentTask);
         }
+
+        // Initialize ActivityResultLaunchers
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null && data.getExtras() != null) {
+                            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                            if (imageBitmap != null) {
+                                cameraImage = getBitmapAsByteArray(imageBitmap);
+
+                                // Display the captured image in the ImageView
+                                imageViewCamera.setVisibility(View.VISIBLE);
+                                imageViewCamera.setImageBitmap(imageBitmap);
+                            }
+                        }
+                    }
+                });
+
+        mapLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            double lat = data.getDoubleExtra("selected_lat", 0);
+                            double lng = data.getDoubleExtra("selected_lng", 0);
+                            mapInfo = getMapInfoAsByteArray(lat, lng);
+
+                            // Call the method to set location information
+                            setLocationInfo(lat, lng);
+                        }
+                    }
+                });
     }
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            cameraLauncher.launch(takePictureIntent);
         }
     }
 
     private void selectMapLocation() {
         Intent mapIntent = new Intent(this, MapsActivity.class);
-        startActivityForResult(mapIntent, REQUEST_MAP_LOCATION);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            Bundle extras = null;
-            if (data != null) {
-                extras = data.getExtras();
-            }
-            Bitmap imageBitmap = null;
-            if (extras != null) {
-                imageBitmap = (Bitmap) extras.get("data");
-            }
-            if (imageBitmap != null) {
-                cameraImage = getBitmapAsByteArray(imageBitmap);
-            }
-
-            // Display the captured image in the ImageView
-            imageViewCamera.setVisibility(View.VISIBLE);
-            imageViewCamera.setImageBitmap(imageBitmap);
-        }
-        if (requestCode == REQUEST_MAP_LOCATION && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                double lat = data.getDoubleExtra("selected_lat", 0);
-                double lng = data.getDoubleExtra("selected_lng", 0);
-                mapInfo = getMapInfoAsByteArray(lat, lng);
-
-                // Call the method to set location information
-                setLocationInfo(lat, lng);
-            }
-        }
+        mapLauncher.launch(mapIntent);
     }
 
     private byte[] getBitmapAsByteArray(Bitmap bitmap) {
@@ -242,9 +245,7 @@ public class AddTaskActivity extends AppCompatActivity {
                 currentTask = databaseHelper.getTaskById((int) taskId);
             }
 
-            if (!date.isEmpty() && !time.isEmpty()) {
-                scheduleNotification(taskName, description, date, time, numberOfNotifications);
-            }
+            scheduleNotification(taskName, description, date, time, numberOfNotifications);
 
             Toast.makeText(this, "Task saved successfully", Toast.LENGTH_SHORT).show();
             finish();
@@ -256,12 +257,17 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
+
     // Schedule Notification for the task
     private void scheduleNotification(String taskName, String description, String date, String time, int numberOfNotifications) {
         try {
             String dateTimeString = date + " " + time;
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             Date dateTime = sdf.parse(dateTimeString);
+
+            if (dateTime == null) {
+                throw new ParseException("Failed to parse date and time", 0);
+            }
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateTime);
@@ -284,10 +290,12 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
 
+    // Cancel Tasks
     private void cancelTask() {
         finish();
     }
 
+    // Reset Input Fields
     private void resetFields() {
         editTextTaskName.setText("");
         editTextDescription.setText("");
@@ -301,6 +309,7 @@ public class AddTaskActivity extends AppCompatActivity {
         textViewLocation.setVisibility(View.GONE);
     }
 
+    // Check Location Permission
     private boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
@@ -310,6 +319,7 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
+    // Fill tasks
     private void fillTaskData(Task task) {
         editTextTaskName.setText(task.getName());
         editTextDescription.setText(task.getDescription());
@@ -385,8 +395,4 @@ public class AddTaskActivity extends AppCompatActivity {
             Toast.makeText(this, "No image available", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
 }
-
