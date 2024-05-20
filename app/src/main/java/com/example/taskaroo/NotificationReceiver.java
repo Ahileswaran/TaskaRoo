@@ -1,17 +1,22 @@
 package com.example.taskaroo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 public class NotificationReceiver extends BroadcastReceiver {
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -23,17 +28,19 @@ public class NotificationReceiver extends BroadcastReceiver {
             // Permissions are granted, proceed to create and show notification
             createNotification(context, taskName, description);
         } else {
-            // Permissions are not granted, request them from the user
+            // Permissions are not granted, inform the user
+            Toast.makeText(context, "Permissions need to be granted to show notifications", Toast.LENGTH_SHORT).show();
             // You can implement your own logic to request permissions here
         }
     }
 
+
     private boolean checkPermissions(Context context) {
-        // Check if the necessary permissions are granted
-        // Return true if all permissions are granted, otherwise false
-        // You can implement your own logic to check permissions here
-        return true; // For simplicity, always return true in this example
+        // Check if the necessary permission for showing notifications is granted
+        int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.VIBRATE);
+        return permissionCheck == PackageManager.PERMISSION_GRANTED;
     }
+
 
     @SuppressLint("MissingPermission")
     private void createNotification(Context context, String taskName, String description) {

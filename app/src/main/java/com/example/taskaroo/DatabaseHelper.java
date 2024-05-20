@@ -36,10 +36,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return DATABASE_NAME;
     }
 
-    public static String getCustomDatabaseID(int taskId) {
-        return COL_ID;
-    }
-
     // Create Database
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -106,7 +102,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Update task
-    public int updateTask(Task task) {
+    public void updateTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_TASK_NAME, task.getName());
@@ -118,7 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_MAP_INFO, task.getMapInfo());
         values.put(COL_CAMERA_INFO, task.getCameraInfo());
         values.put(COL_TIMESTAMP, getDateTime());
-        return db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
+        db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(task.getId())});
     }
 
     // Delete Task

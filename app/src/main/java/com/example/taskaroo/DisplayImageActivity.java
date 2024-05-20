@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -13,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class DisplayImageActivity extends AppCompatActivity {
 
-    private ImageView imageView;
     private byte[] imageByteArray;
 
     @Override
@@ -24,7 +22,7 @@ public class DisplayImageActivity extends AppCompatActivity {
         // Get the image byte array from the intent
         imageByteArray = getIntent().getByteArrayExtra("imageByteArray");
 
-        imageView = findViewById(R.id.imageView);
+        ImageView imageView = findViewById(R.id.imageView);
 
         // Load the image into the ImageView
         if (imageByteArray != null) {
@@ -34,12 +32,7 @@ public class DisplayImageActivity extends AppCompatActivity {
 
         // Set click listener for the save button
         Button saveButton = findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveImageToDevice();
-            }
-        });
+        saveButton.setOnClickListener(v -> saveImageToDevice());
     }
 
     private void saveImageToDevice() {

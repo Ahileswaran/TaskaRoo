@@ -3,7 +3,9 @@ package com.example.taskaroo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,7 +26,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
         Button selectLocationButton = findViewById(R.id.button_select_location);
         selectLocationButton.setOnClickListener(v -> {
@@ -36,12 +40,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 finish();
             } else {
                 // Handle the case where no location was selected
+                // For example, you can display a toast message or provide a UI indication
+                Toast.makeText(this, "Please select a location on the map.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
         // Set default location (e.g., Colombo, Sri Lanka)
@@ -60,5 +66,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         });
     }
-
 }

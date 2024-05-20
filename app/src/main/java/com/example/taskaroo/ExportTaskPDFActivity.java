@@ -13,19 +13,34 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class ExportTaskPDFActivity extends AppCompatActivity {
 
     private static final String TAG = "ExportTaskPDFActivity";
-    private static final int REQUEST_SAVE_PDF = 1;
-
     private DatabaseHelper dbHelper;
+
+    private final ActivityResultLauncher<Intent> createDocumentLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        Uri uri = data.getData();
+                        if (uri != null) {
+                            savePdfToFile(uri);
+                        }
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +50,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         Button generateButton = findViewById(R.id.generatePDFButton);
-        generateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                generatePDF();
-            }
-        });
+        generateButton.setOnClickListener(v -> generatePDF());
     }
 
     private boolean isExternalStorageWritable() {
@@ -66,7 +76,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         for (Task task : tasks) {
             PdfDocument.Page page = document.startPage(pageInfo);
             Canvas canvas = page.getCanvas();
-            Paint paint = new Paint();
+            new Paint();
 
             TaskView taskView = new TaskView(this); // Create a new instance of TaskView
             taskView.setTask(task); // Set the task details
@@ -93,18 +103,7 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_TITLE, "TaskarooTasks.pdf");
-        startActivityForResult(intent, REQUEST_SAVE_PDF);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_SAVE_PDF && resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                savePdfToFile(uri);
-            }
-        }
+        createDocumentLauncher.launch(intent);
     }
 
     private void savePdfToFile(Uri uri) {
@@ -125,12 +124,10 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
             PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(842, 595, 1).create(); // A4 size: 842x595 points (landscape)
 
             List<Task> tasks = dbHelper.getAllTasks();
-            int xPos = 50; // Initial X position for task view
 
             for (Task task : tasks) {
                 PdfDocument.Page page = document.startPage(pageInfo);
                 Canvas canvas = page.getCanvas();
-                Paint paint = new Paint();
 
                 TaskView taskView = new TaskView(this); // Create a new instance of TaskView
                 taskView.setTask(task); // Set the task details
@@ -138,16 +135,18 @@ public class ExportTaskPDFActivity extends AppCompatActivity {
                 taskView.layout(0, 0, taskView.getMeasuredWidth(), taskView.getMeasuredHeight()); // Layout the view
                 taskView.draw(canvas); // Draw the view on the canvas
 
-                xPos += taskView.getMeasuredWidth() + 20; // Increment X position
-
                 document.finishPage(page);
             }
 
             // Write the PDF to the file
-            FileOutputStream outputStream = new FileOutputStream(getContentResolver().openFileDescriptor(uri, "w").getFileDescriptor());
-            document.writeTo(outputStream);
-            document.close();
+            try (FileOutputStream outputStream = new FileOutputStream(Objects.requireNonNull(getContentResolver().openFileDescriptor(uri, "w")).getFileDescriptor())) {
+                document.writeTo(outputStream);
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Failed to get file descriptor: " + e.getMessage());
+                Toast.makeText(this, "Failed to Save PDF", Toast.LENGTH_SHORT).show();
+            }
 
+            document.close();
             Toast.makeText(this, "PDF Saved Successfully", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
