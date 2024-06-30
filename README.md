@@ -1,10 +1,11 @@
-TaskaRoo
-
+# TaskaRoo
 TaskaRoo is an Android mobile application designed to assist users in managing their daily tasks with ease. It integrates unique features like location-based tasks and PDF export, enhancing the traditional to-do list experience.
-App Overview
+
+**App Overview**
 
 TaskaRoo aims to help users keep track of their day-to-day activities, offering guidance and organization through a user-friendly interface.
-Features
+
+**Features**
 1. User Interface
 
     Main Activity Window: Includes a Floating Action Button (FAB) to add tasks.
@@ -34,9 +35,9 @@ Features
 
     Utilizes Espresso framework for UI testing, ensuring functionalities like form resets work as intended.
 
-Installation
+**Installation**
 
-## Repository Link
+# Repository Link
 
 **[TaskaRoo on GitHub](https://github.com/Ahileswaran/TaskaRoo)**
 
@@ -44,7 +45,7 @@ Installation
     Open the project in Android Studio.
     Build and run the app on your device or emulator.
 
-How to Use
+**How to Use**
 
     Adding a Task:
         Tap the FAB on the main screen.
@@ -69,14 +70,14 @@ How to Use
         Use the navigation drawer to access backup/restore options.
         Save your current tasks or restore from a previous backup.
 
-Unique Features
+**Unique Features**
 
     Location-Based Tasks: Assign locations to tasks, visualizing them on a map.
     PDF Export: Easily create a printable version of your task list.
     User-Friendly Interface: Intuitive design with easy navigation and task management.
     Theme Options: Customize the app appearance with light and dark themes.
 
-Testing
+**Testing**
 
 TaskaRoo includes automated tests using the Espresso framework to ensure functionality and reliability. Key tests include:
 
